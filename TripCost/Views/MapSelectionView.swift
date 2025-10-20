@@ -33,20 +33,6 @@ struct MapSelectionView: View {
                         actionButtons
                             .padding(.bottom, 20)
                     }
-                    
-                    // Debug info - remove this later
-                    if locationViewModel.startLocation != nil || locationViewModel.endLocation != nil {
-                        HStack {
-                            Text("Start: \(locationViewModel.startLocation != nil ? "✓" : "✗")")
-                            Text("End: \(locationViewModel.endLocation != nil ? "✓" : "✗")")
-                            Text("Route: \(locationViewModel.route != nil ? "✓" : "✗")")
-                            Text("Loading: \(locationViewModel.isLoadingRoute ? "Yes" : "No")")
-                        }
-                        .font(.caption)
-                        .padding(8)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-                        .padding(.bottom, 8)
-                    }
                 }
                 .padding()
             }
