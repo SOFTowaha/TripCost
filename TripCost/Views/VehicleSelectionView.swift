@@ -170,36 +170,74 @@ struct VehicleCard: View {
                 Button {
                     onSelect()
                 } label: {
-                    Label("Select", systemImage: "checkmark")
-                        .font(.caption)
+                    HStack(spacing: 6) {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        Text(isSelected ? "Selected" : "Select")
+                    }
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(isSelected ? .blue : .secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        isSelected ? .blue.opacity(0.15) : .gray.opacity(0.1),
+                        in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.3), lineWidth: 1)
+                    )
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
+                .buttonStyle(.plain)
+                .disabled(isSelected)
 
                 Button {
                     onEdit()
                 } label: {
-                    Label("Edit", systemImage: "pencil")
-                        .font(.caption)
+                    HStack(spacing: 6) {
+                        Image(systemName: "pencil")
+                        Text("Edit")
+                    }
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                    )
                 }
-                .buttonStyle(.bordered)
-                .tint(.orange)
+                .buttonStyle(.plain)
 
                 Button(role: .destructive) {
                     onDelete()
                 } label: {
-                    Label("Delete", systemImage: "trash")
-                        .font(.caption)
+                    HStack(spacing: 6) {
+                        Image(systemName: "trash")
+                        Text("Delete")
+                    }
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.red)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                    )
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
             }
         }
         .padding(18)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                .stroke(isSelected ? Color.blue.opacity(0.4) : Color.white.opacity(0.2), lineWidth: isSelected ? 2 : 1)
         )
-        .shadow(color: .black.opacity(0.07), radius: 8, x: 0, y: 4)
+        .shadow(color: isSelected ? .blue.opacity(0.2) : .black.opacity(0.07), radius: isSelected ? 12 : 8, x: 0, y: 4)
     }
 }
