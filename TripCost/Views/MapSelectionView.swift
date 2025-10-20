@@ -28,12 +28,13 @@ struct MapSelectionView: View {
                 mapView
 
                 VStack(spacing: 0) {
-                    // Side-by-side 'From' and 'To' cards
-                    HStack(spacing: 24) {
+                    // Side-by-side 'From' and 'To' cards with glass design
+                    HStack(spacing: 16) {
                         Button(action: { showFromSearch = true }) {
                             HStack(spacing: 12) {
                                 Image(systemName: "a.circle.fill")
                                     .foregroundStyle(.green)
+                                    .font(.title2)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("From")
                                         .font(.caption)
@@ -41,18 +42,26 @@ struct MapSelectionView: View {
                                     Text(locationViewModel.startAddress.isEmpty ? "Choose starting point" : locationViewModel.startAddress)
                                         .font(.body)
                                         .foregroundStyle(.primary)
+                                        .lineLimit(1)
                                 }
+                                Spacer()
                             }
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 24)
-                            .background(Color(NSColor.windowBackgroundColor))
-                            .cornerRadius(16)
-                            .shadow(color: Color.black.opacity(0.10), radius: 8, x: 0, y: 2)
+                            .padding(.vertical, 16)
+                            .padding(.horizontal, 20)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
                         }
+                        .buttonStyle(.plain)
+                        
                         Button(action: { showToSearch = true }) {
                             HStack(spacing: 12) {
                                 Image(systemName: "b.circle.fill")
                                     .foregroundStyle(.red)
+                                    .font(.title2)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("To")
                                         .font(.caption)
@@ -60,17 +69,23 @@ struct MapSelectionView: View {
                                     Text(locationViewModel.endAddress.isEmpty ? "Choose destination" : locationViewModel.endAddress)
                                         .font(.body)
                                         .foregroundStyle(.primary)
+                                        .lineLimit(1)
                                 }
+                                Spacer()
                             }
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 24)
-                            .background(Color(NSColor.windowBackgroundColor))
-                            .cornerRadius(16)
-                            .shadow(color: Color.black.opacity(0.10), radius: 8, x: 0, y: 2)
+                            .padding(.vertical, 16)
+                            .padding(.horizontal, 20)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
                         }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.top, 32)
-                    .padding(.horizontal, 48)
+                    .padding(.top, 24)
+                    .padding(.horizontal, 32)
 
                     Spacer()
 
@@ -160,23 +175,32 @@ struct MapSelectionView: View {
         VStack(spacing: 12) {
             HStack {
 
-                // Clear/Reset button
+                // Clear/Reset button with glass design
                 if locationViewModel.startLocation != nil || locationViewModel.endLocation != nil {
                     Button {
                         locationViewModel.clearRoute()
                     } label: {
-                        HStack(spacing: 4) {
+                        HStack(spacing: 6) {
                             Image(systemName: "arrow.counterclockwise")
                             Text("Reset")
                         }
                         .font(.caption)
+                        .fontWeight(.medium)
                         .foregroundStyle(.blue)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
+                        )
                     }
                     .buttonStyle(.plain)
                 }
             }
 
             Divider()
+                .opacity(0.5)
 
             LocationInputRow(
                 icon: "a.circle.fill",
@@ -188,6 +212,7 @@ struct MapSelectionView: View {
             )
 
             Divider()
+                .opacity(0.5)
 
             LocationInputRow(
                 icon: "b.circle.fill",
@@ -200,6 +225,7 @@ struct MapSelectionView: View {
 
             if locationViewModel.isLoadingRoute {
                 Divider()
+                    .opacity(0.5)
                 HStack {
                     ProgressView()
                         .scaleEffect(0.8)
@@ -210,30 +236,43 @@ struct MapSelectionView: View {
                 .padding(.top, 4)
             }
         }
-        .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .padding(18)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
     }
 
     private var actionButtons: some View {
         VStack(spacing: 12) {
+            // Preview Route button with glass design
             Button {
                 showRoutePreview = true
             } label: {
-                HStack {
+                HStack(spacing: 8) {
                     Image(systemName: "map")
+                        .font(.title3)
                     Text("Preview Route")
+                        .font(.body)
+                        .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
-                .background(.blue)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.vertical, 14)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
+                )
+                .foregroundStyle(.blue)
+                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 4)
             }
             .buttonStyle(.plain)
             .disabled(locationViewModel.route == nil)
-            .opacity(locationViewModel.route == nil ? 0.6 : 1.0)
+            .opacity(locationViewModel.route == nil ? 0.5 : 1.0)
 
+            // Calculate Cost button with glass design
             Button {
                 // Bind route into calculator VM
                 if let route = locationViewModel.route {
@@ -249,21 +288,28 @@ struct MapSelectionView: View {
                 }
                 showCostBreakdown = true
             } label: {
-                HStack {
+                HStack(spacing: 8) {
                     Image(systemName: "dollarsign.circle.fill")
+                        .font(.title3)
                     Text("Calculate Cost")
+                        .font(.body)
+                        .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
-                .background(.green)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.vertical, 14)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 1.5)
+                )
+                .foregroundStyle(.green)
+                .shadow(color: Color.green.opacity(0.3), radius: 10, x: 0, y: 4)
             }
             .buttonStyle(.plain)
             .disabled(locationViewModel.route == nil)
-            .opacity(locationViewModel.route == nil ? 0.6 : 1.0)
+            .opacity(locationViewModel.route == nil ? 0.5 : 1.0)
         }
-        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+        .padding(.horizontal, 32)
         .transition(AnimationConstants.Transitions.scale)
         .animation(AnimationConstants.bouncy, value: locationViewModel.route != nil)
     }
