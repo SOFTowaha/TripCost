@@ -48,16 +48,25 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
     func setStartLocation(_ coordinate: CLLocationCoordinate2D) {
         startLocation = coordinate
+        print("📍 Start location set: \(coordinate.latitude), \(coordinate.longitude)")
         Task {
             await fetchAddress(for: coordinate, isStart: true)
+            // If end location already exists, calculate route
+            if endLocation != nil {
+                print("🔄 Calculating route (start set after end)")
+                await calculateRoute()
+            }
         }
     }
     
     func setEndLocation(_ coordinate: CLLocationCoordinate2D) {
         endLocation = coordinate
+        print("📍 End location set: \(coordinate.latitude), \(coordinate.longitude)")
         Task {
             await fetchAddress(for: coordinate, isStart: false)
+            // If start location already exists, calculate route
             if startLocation != nil {
+                print("🔄 Calculating route (end set after start)")
                 await calculateRoute()
             }
         }
@@ -101,8 +110,10 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         do {
             let response = try await directions.calculate()
             route = response.routes.first
+            print("✅ Route calculated successfully: \(route?.distance ?? 0) meters")
         } catch {
             errorMessage = "Failed to calculate route: \(error.localizedDescription)"
+            print("❌ Route calculation failed: \(error.localizedDescription)")
         }
     }
     
