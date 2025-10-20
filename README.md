@@ -40,6 +40,20 @@ git clone https://github.com/SOFTowaha/TripCost.git
 cd TripCost
 open TripCost.xcodeproj
 ```
+## Screenshots
+
+Screenshots of the app are available in the [`screenshots`](./screenshots) directory:
+
+| Page                | Screenshot                                  |
+|---------------------|---------------------------------------------|
+| Main View           | ![Main View](screenshots/main_view.png)      |
+| Add Vehicle         | ![Add Vehicle](screenshots/add_vehicle.png)  |
+| Add Cost            | ![Add Cost](screenshots/add_cost.png)        |
+| Cost Breakdown      | ![Cost Breakdown](screenshots/cost_breakdown.png) |
+| Settings            | ![Settings](screenshots/settings.png)        |
+| Map Selection       | ![Map Selection](screenshots/map_selection.png) | ✅
+
+> To update screenshots, use the provided script in the project root.
 
 Then build and run in Xcode (⌘R)
 

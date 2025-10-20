@@ -1,3 +1,9 @@
+# Script files
+capture_screenshots.sh
+generate_icon.sh
+
+# App screenshots
+screenshots/*.png
 # Ignore Xcode build files
 build/
 DerivedData/
