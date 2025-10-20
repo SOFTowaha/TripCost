@@ -46,9 +46,14 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         locationManager.stopUpdatingLocation()
     }
     
-    func setStartLocation(_ coordinate: CLLocationCoordinate2D) {
+    func setStartLocation(_ coordinate: CLLocationCoordinate2D, resetCalculation: @escaping () -> Void = {}) {
         startLocation = coordinate
         print("📍 Start location set: \(coordinate.latitude), \(coordinate.longitude)")
+        
+        // Clear route when changing location
+        route = nil
+        resetCalculation()
+        
         Task {
             await fetchAddress(for: coordinate, isStart: true)
             // If end location already exists, calculate route
@@ -59,9 +64,14 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func setEndLocation(_ coordinate: CLLocationCoordinate2D) {
+    func setEndLocation(_ coordinate: CLLocationCoordinate2D, resetCalculation: @escaping () -> Void = {}) {
         endLocation = coordinate
         print("📍 End location set: \(coordinate.latitude), \(coordinate.longitude)")
+        
+        // Clear route when changing location
+        route = nil
+        resetCalculation()
+        
         Task {
             await fetchAddress(for: coordinate, isStart: false)
             // If start location already exists, calculate route

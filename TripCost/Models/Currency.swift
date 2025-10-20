@@ -13,7 +13,7 @@ struct Currency: Codable, Hashable, Identifiable {
     let name: String
 
     static let all: [Currency] = Locale.commonISOCurrencyCodes.compactMap { code in
-        let locale = Locale.availableIdentifiers.compactMap { Locale(identifier: $0) }.first { $0.currencyCode == code }
+        let locale = Locale.availableIdentifiers.compactMap { Locale(identifier: $0) }.first { $0.currency?.identifier == code }
         let symbol = locale?.currencySymbol ?? code
         let name = locale?.localizedString(forCurrencyCode: code) ?? code
         return Currency(id: code, symbol: symbol, name: name)

@@ -100,7 +100,10 @@ struct MapSelectionView: View {
                         searchVM: fromSearchVM,
                         onPick: { item in
                             let coord = item.placemark.coordinate
-                            locationViewModel.setStartLocation(coord)
+                            locationViewModel.setStartLocation(coord) {
+                                // Reset calculation when route changes
+                                calculatorViewModel.tripRoute = nil
+                            }
                             locationViewModel.region.center = coord
                             showFromSearch = false
                         }
@@ -112,7 +115,10 @@ struct MapSelectionView: View {
                         searchVM: toSearchVM,
                         onPick: { item in
                             let coord = item.placemark.coordinate
-                            locationViewModel.setEndLocation(coord)
+                            locationViewModel.setEndLocation(coord) {
+                                // Reset calculation when route changes
+                                calculatorViewModel.tripRoute = nil
+                            }
                             locationViewModel.region.center = coord
                             showToSearch = false
                         }
@@ -120,6 +126,27 @@ struct MapSelectionView: View {
                 }
             }
             .navigationTitle("Trip Calculator")
+            .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        resetAll()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.counterclockwise.circle.fill")
+                            Text("Reset")
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .overlay(
+                            Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(locationViewModel.startLocation == nil && locationViewModel.endLocation == nil)
+                    .opacity((locationViewModel.startLocation == nil && locationViewModel.endLocation == nil) ? 0.5 : 1.0)
+                }
+            }
             .sheet(isPresented: $showRoutePreview) {
                 RoutePreviewView(
                     locationViewModel: locationViewModel,
@@ -313,6 +340,25 @@ struct MapSelectionView: View {
         .transition(AnimationConstants.Transitions.scale)
         .animation(AnimationConstants.bouncy, value: locationViewModel.route != nil)
     }
+    
+    private func resetAll() {
+        // Clear location data
+        locationViewModel.clearRoute()
+        
+        // Clear calculator data
+        calculatorViewModel.reset()
+        
+        // Reset search view models
+        fromSearchVM.query = ""
+        fromSearchVM.suggestions = []
+        toSearchVM.query = ""
+        toSearchVM.suggestions = []
+        
+        // Reset camera position
+        cameraPosition = .automatic
+        
+        print("🔄 All data reset")
+    }
 }
 
 struct LocationInputRow: View {
@@ -461,4 +507,3 @@ struct SearchBarOverlay: View {
         .frame(maxWidth: 500)
     }
 }
-
