@@ -493,6 +493,7 @@ struct AdditionalCostRow: View {
 struct CurrencyPickerView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var selectedCurrency: String
+    @State private var query: String = ""
     
     let currencies = [
         ("USD", "US Dollar", "$"),
@@ -507,63 +508,101 @@ struct CurrencyPickerView: View {
         ("MXN", "Mexican Peso", "$")
     ]
     
+    private var filteredCurrencies: [(String, String, String)] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !q.isEmpty else { return currencies }
+        return currencies.filter { code, name, symbol in
+            code.lowercased().contains(q) || name.lowercased().contains(q) || symbol.lowercased().contains(q)
+        }
+    }
+
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(currencies, id: \.0) { code, name, symbol in
-                    Button {
-                        selectedCurrency = code
-                        dismiss()
-                    } label: {
-                        HStack(spacing: 16) {
-                            ZStack {
-                                Circle()
-                                    .fill(selectedCurrency == code ? .blue.opacity(0.1) : .gray.opacity(0.1))
-                                    .frame(width: 44, height: 44)
-                                
-                                Text(symbol)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(selectedCurrency == code ? .blue : .secondary)
+            ScrollView {
+                VStack(spacing: 16) {
+                    searchBar
+                    ForEach(filteredCurrencies, id: \.0) { code, name, symbol in
+                        Button {
+                            selectedCurrency = code
+                            dismiss()
+                        } label: {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .fill(selectedCurrency == code ? .blue.opacity(0.12) : .gray.opacity(0.12))
+                                        .frame(width: 46, height: 46)
+
+                                    Text(symbol)
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(selectedCurrency == code ? .blue : .secondary)
+                                }
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(name)
+                                        .font(.headline)
+                                    Text(code)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Spacer()
+
+                                if selectedCurrency == code {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(.blue)
+                                }
                             }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(name)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                
-                                Text(code)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            if selectedCurrency == code {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                            }
+                            .padding(14)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
                         }
-                        .padding(.vertical, 4)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .padding(24)
             }
-            .listStyle(.inset)
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("Select Currency")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()
                     } label: {
-                        Label("Close", systemImage: "xmark.circle.fill")
-                            .font(.title3)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                            .padding(8)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.plain)
                 }
             }
         }
-        .frame(minWidth: 400, minHeight: 500)
+        .frame(minWidth: 480, minHeight: 560)
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField("Search currency, code, or symbol", text: $query)
+                .textFieldStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
     }
 }
