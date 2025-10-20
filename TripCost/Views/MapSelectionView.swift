@@ -216,46 +216,76 @@ struct SearchBarOverlay: View {
     var onPick: (MKMapItem) -> Void
 
     var body: some View {
-        VStack(spacing: 8) {
-            // Native macOS search field style
-            HStack {
-                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            // Modern search field
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                    .font(.headline)
+                
                 TextField("Search for a place or address", text: $searchVM.query)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .font(.body)
                     .onChange(of: searchVM.query) { _, newValue in
                         searchVM.updateQuery(newValue)
                     }
+                
+                if !searchVM.query.isEmpty {
+                    Button {
+                        searchVM.query = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .padding(8)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .padding(12)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
 
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(searchVM.suggestions, id: \.self) { suggestion in
-                            Button {
-                                Task {
-                                    if let item = await searchVM.resolve(suggestion) {
-                                        onPick(item)
-                                    }
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(searchVM.suggestions, id: \.self) { suggestion in
+                        Button {
+                            Task {
+                                if let item = await searchVM.resolve(suggestion) {
+                                    onPick(item)
+                                    searchVM.query = "" // Clear search after selection
                                 }
-                            } label: {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(suggestion.title).font(.subheadline)
-                                    if !suggestion.subtitle.isEmpty {
-                                        Text(suggestion.subtitle).font(.caption).foregroundStyle(.secondary)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(8)
                             }
-                            .buttonStyle(.plain)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(suggestion.title)
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.primary)
+                                
+                                if !suggestion.subtitle.isEmpty {
+                                    Text(suggestion.subtitle)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .background(Color.black.opacity(0.001)) // For hover effect
+                        .hoverEffect()
+                        
+                        if suggestion != searchVM.suggestions.last {
                             Divider()
+                                .padding(.leading, 16)
                         }
                     }
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
                 }
-                .frame(maxHeight: 240)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                .padding(.top, 8)
+                .frame(maxHeight: 300)
             }
         }
     }

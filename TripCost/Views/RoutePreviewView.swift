@@ -27,13 +27,11 @@ struct RoutePreviewView: View {
                     Button {
                         dismiss()
                     } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title3)
-                            Text("Close")
-                        }
+                        Label("Close", systemImage: "xmark.circle.fill")
+                            .font(.title3)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.borderless)
+                    .controlSize(.large)
                 }
             }
         }
