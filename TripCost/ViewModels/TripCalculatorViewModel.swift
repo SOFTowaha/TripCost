@@ -12,19 +12,19 @@ import Combine
 @Observable
 class TripCalculatorViewModel {
     var tripRoute: TripRoute?
-    var selectedVehicle: Vehicle?
+    // Removed selectedVehicle - will use from VehicleViewModel
     var fuelPrice: Double = 3.50
     var additionalCosts: [AdditionalCost] = []
     var useMetric = false
     var numberOfPeople = 1
-    var currencyCode = "USD" // New: Currency selection
+    var currencyCode = "CAD" // New: Currency selection
     
-    var tripCost: TripCost? {
+    func tripCost(vehicle: Vehicle?) -> TripCost? {
         guard let route = tripRoute else {
             print("❌ No route available for cost calculation")
             return nil
         }
-        guard let vehicle = selectedVehicle else {
+        guard let vehicle = vehicle else {
             print("❌ No vehicle selected for cost calculation")
             return nil
         }
@@ -76,14 +76,13 @@ class TripCalculatorViewModel {
         }
     }
     
-    func totalCostPerPerson() -> Double {
-        guard let cost = tripCost else { return 0 }
+    func totalCostPerPerson(vehicle: Vehicle?) -> Double {
+        guard let cost = tripCost(vehicle: vehicle) else { return 0 }
         return cost.costPerPerson(numberOfPeople: numberOfPeople)
     }
     
     func reset() {
         tripRoute = nil
-        selectedVehicle = nil
         additionalCosts = []
         numberOfPeople = 1
     }
