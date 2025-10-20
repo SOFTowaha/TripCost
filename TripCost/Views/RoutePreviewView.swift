@@ -20,7 +20,11 @@ struct RoutePreviewView: View {
                 routeMap
                 routeDetails
             }
-            .background(.thinMaterial.ignoresSafeArea())
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("Route Preview")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

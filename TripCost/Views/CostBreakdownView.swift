@@ -30,7 +30,11 @@ struct CostBreakdownView: View {
                 }
                 .padding(24)
             }
-            .background(.thinMaterial.ignoresSafeArea())
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("Cost Breakdown")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
