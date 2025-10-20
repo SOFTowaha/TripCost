@@ -73,10 +73,14 @@ struct VehicleSelectionView: View {
     private var vehicleList: some View {
         List {
             ForEach(viewModel.vehicles) { vehicle in
-                VehicleRow(vehicle: vehicle)
+                VehicleRow(
+                    vehicle: vehicle,
+                    isSelected: viewModel.selectedVehicle?.id == vehicle.id
+                )
                     .contentShape(Rectangle())
                     .onTapGesture {
                         viewModel.selectedVehicle = vehicle
+                        print("✅ Vehicle selected: \(vehicle.displayName)")
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
@@ -100,40 +104,48 @@ struct VehicleSelectionView: View {
 
 struct VehicleRow: View {
     let vehicle: Vehicle
+    var isSelected: Bool = false
 
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: vehicle.fuelType.icon)
                 .font(.title2)
-                .foregroundStyle(.blue)
+                .foregroundStyle(isSelected ? .white : .blue)
                 .frame(width: 40)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(vehicle.displayName)
                     .font(.headline)
+                    .foregroundStyle(isSelected ? .white : .primary)
 
                 HStack(spacing: 8) {
                     Label("\(Int(vehicle.combinedMPG)) MPG", systemImage: "gauge.with.dots.needle.67percent")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(isSelected ? .white.opacity(0.9) : .secondary)
 
                     Text(vehicle.fuelType.rawValue)
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
-                        .background(.blue.opacity(0.1), in: Capsule())
-                        .foregroundStyle(.blue)
+                        .background(isSelected ? .white.opacity(0.2) : .blue.opacity(0.1), in: Capsule())
+                        .foregroundStyle(isSelected ? .white : .blue)
                 }
             }
 
             Spacer()
 
-            if vehicle.isCustom {
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.white)
+                    .font(.title3)
+            } else if vehicle.isCustom {
                 Image(systemName: "star.fill")
                     .foregroundStyle(.yellow)
                     .font(.caption)
             }
         }
         .padding(.vertical, 4)
+        .padding(.horizontal, 8)
+        .background(isSelected ? .blue : .clear, in: RoundedRectangle(cornerRadius: 8))
     }
 }

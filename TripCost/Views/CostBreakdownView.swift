@@ -18,6 +18,23 @@ struct CostBreakdownView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Debug info - remove later
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Debug Info:").font(.caption).fontWeight(.bold)
+                        Text("Vehicles count: \(vehicleViewModel.vehicles.count)")
+                        Text("Selected vehicle: \(vehicleViewModel.selectedVehicle?.displayName ?? "None")")
+                        if !vehicleViewModel.vehicles.isEmpty {
+                            Text("Available vehicles:")
+                            ForEach(vehicleViewModel.vehicles.prefix(3)) { vehicle in
+                                Text("  - \(vehicle.displayName)")
+                            }
+                        }
+                    }
+                    .font(.caption)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    
                     if vehicleViewModel.selectedVehicle == nil {
                         selectVehiclePrompt
                     } else {
