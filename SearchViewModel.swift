@@ -13,7 +13,7 @@ import MapKit
 class SearchViewModel: NSObject, MKLocalSearchCompleterDelegate {
     var query = ""
     var suggestions: [MKLocalSearchCompletion] = []
-    var isSearching = false
+    var isLoading = false
     var errorMessage: String?
     private let completer = MKLocalSearchCompleter()
 
@@ -37,8 +37,8 @@ class SearchViewModel: NSObject, MKLocalSearchCompleterDelegate {
     }
 
     func resolve(_ completion: MKLocalSearchCompletion) async -> MKMapItem? {
-        isSearching = true
-        defer { isSearching = false }
+        isLoading = true
+        defer { isLoading = false }
         let request = MKLocalSearch.Request(completion: completion)
         let search = MKLocalSearch(request: request)
         do {
