@@ -281,19 +281,15 @@ struct CostBreakdownView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                 }
-                
                 Spacer()
-                
                 Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.fuelCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.green)
             }
-            
             if let vehicle = vehicleViewModel.selectedVehicle {
                 Divider()
                     .opacity(0.5)
-                
                 VStack(spacing: 12) {
                     InfoRow(
                         icon: "car.fill",
@@ -313,7 +309,7 @@ struct CostBreakdownView: View {
                     InfoRow(
                         icon: "dollarsign.circle.fill",
                         label: "Fuel Price",
-                        value: CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode) + "/gal"
+                        value: CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode) + "/" + calculatorViewModel.fuelPriceShortUnitLabel
                     )
                 }
             }
