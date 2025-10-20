@@ -15,9 +15,6 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 💱 **Multi-Currency** - Support for multiple currencies  
 📊 **Detailed Breakdown** - View fuel costs and additional expenses  
 
-## Screenshots
-
-[Add screenshots here]
 
 ## Requirements
 
