@@ -14,6 +14,7 @@ struct CostBreakdownView: View {
     @State private var showAddCost = false
     @State private var showSplitView = false
     @State private var showCurrencyPicker = false
+    @State private var showVehicleSelection = false
 
     var body: some View {
         NavigationStack {
@@ -51,6 +52,26 @@ struct CostBreakdownView: View {
                 }
                 
                 if vehicleViewModel.selectedVehicle != nil {
+                    ToolbarItem(placement: .automatic) {
+                        Button {
+                            showVehicleSelection = true
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "car.fill")
+                                Text("Change")
+                                    .fontWeight(.medium)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    
                     ToolbarItem(placement: .automatic) {
                         Button {
                             showCurrencyPicker = true
@@ -102,6 +123,10 @@ struct CostBreakdownView: View {
             }
             .sheet(isPresented: $showCurrencyPicker) {
                 CurrencyPickerView(selectedCurrency: $calculatorViewModel.currency)
+            }
+            .sheet(isPresented: $showVehicleSelection) {
+                VehicleSelectionView()
+                    .environment(vehicleViewModel)
             }
         }
     }

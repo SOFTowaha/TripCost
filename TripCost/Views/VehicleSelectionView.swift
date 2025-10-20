@@ -9,6 +9,7 @@ import SwiftUI
 
 struct VehicleSelectionView: View {
     @Environment(VehicleViewModel.self) private var viewModel
+    @Environment(\.dismiss) var dismiss
     @State private var showAddVehicle = false
     @State private var showEditVehicle: Vehicle?
 
@@ -48,6 +49,19 @@ struct VehicleSelectionView: View {
             )
             .navigationTitle("My Vehicles")
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                            .padding(8)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showAddVehicle = true
