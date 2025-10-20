@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    runs-on: macos-14
+    runs-on: macos-latest
     
     permissions:
       contents: write
@@ -15,9 +15,22 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
       
-    - name: Select Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+    - name: Show Xcode version
+      run: xcodebuild -version
+      
+    - name: Validate project file
+      run: |
+        if [ ! -f "TripCost.xcodeproj/project.pbxproj" ]; then
+          echo "Error: project.pbxproj not found!"
+          exit 1
+        fi
+        echo "Project file exists and is readable"
+        
+    - name: List schemes
+      run: xcodebuild -list -project TripCost.xcodeproj
       
     - name: Build archive
       run: |
@@ -25,9 +38,12 @@ jobs:
           -project TripCost.xcodeproj \
           -scheme TripCost \
           -archivePath ./build/TripCost.xcarchive \
+          -destination 'platform=macOS,arch=x86_64' \
+          -configuration Release \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=NO
           
     - name: Export app
       run: |
