@@ -2,40 +2,58 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, develop, makeup-artist ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
       
-    - name: Select Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+    - name: List Xcode versions
+      run: ls /Applications | grep Xcode
       
-    - name: Show Xcode version
+    - name: Show default Xcode version
       run: xcodebuild -version
+      
+    - name: Validate project file
+      run: |
+        if [ ! -f "TripCost.xcodeproj/project.pbxproj" ]; then
+          echo "Error: project.pbxproj not found!"
+          exit 1
+        fi
+        echo "Project file exists and is readable"
+        
+    - name: List schemes
+      run: xcodebuild -list -project TripCost.xcodeproj
+      
+    - name: Clean build folder
+      run: rm -rf ~/Library/Developer/Xcode/DerivedData
       
     - name: Build project
       run: |
         xcodebuild clean build \
           -project TripCost.xcodeproj \
           -scheme TripCost \
-          -destination 'platform=macOS' \
+          -destination 'platform=macOS,arch=x86_64' \
+          -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=NO
           
     - name: Run tests (if available)
       run: |
         xcodebuild test \
           -project TripCost.xcodeproj \
           -scheme TripCost \
-          -destination 'platform=macOS' \
+          -destination 'platform=macOS,arch=x86_64' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO || true
