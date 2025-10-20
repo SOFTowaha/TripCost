@@ -31,6 +31,21 @@ struct MapSelectionView: View {
 
                     if locationViewModel.startLocation != nil && locationViewModel.endLocation != nil {
                         actionButtons
+                            .padding(.bottom, 20)
+                    }
+                    
+                    // Debug info - remove this later
+                    if locationViewModel.startLocation != nil || locationViewModel.endLocation != nil {
+                        HStack {
+                            Text("Start: \(locationViewModel.startLocation != nil ? "✓" : "✗")")
+                            Text("End: \(locationViewModel.endLocation != nil ? "✓" : "✗")")
+                            Text("Route: \(locationViewModel.route != nil ? "✓" : "✗")")
+                            Text("Loading: \(locationViewModel.isLoadingRoute ? "Yes" : "No")")
+                        }
+                        .font(.caption)
+                        .padding(8)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+                        .padding(.bottom, 8)
                     }
                 }
                 .padding()
@@ -132,6 +147,7 @@ struct MapSelectionView: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .buttonStyle(.plain)
             .disabled(locationViewModel.route == nil)
             .opacity(locationViewModel.route == nil ? 0.6 : 1.0)
 
@@ -160,9 +176,11 @@ struct MapSelectionView: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .buttonStyle(.plain)
             .disabled(locationViewModel.route == nil)
             .opacity(locationViewModel.route == nil ? 0.6 : 1.0)
         }
+        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
         .transition(AnimationConstants.Transitions.scale)
         .animation(AnimationConstants.bouncy, value: locationViewModel.route != nil)
     }
