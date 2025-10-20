@@ -14,10 +14,12 @@ class TripCalculatorViewModel {
     var tripRoute: TripRoute?
     // Removed selectedVehicle - will use from VehicleViewModel
     var fuelPrice: Double = 3.50
+    enum FuelPriceUnit: String, Codable { case perGallon, perLiter }
+    var fuelPriceUnit: FuelPriceUnit = .perGallon
     var additionalCosts: [AdditionalCost] = []
     var useMetric = false
     var numberOfPeople = 1
-    var currencyCode = "CAD" // New: Currency selection
+    var currency: Currency = .default // New: Currency selection
     
     func tripCost(vehicle: Vehicle?) -> TripCost? {
         guard let route = tripRoute else {
@@ -50,13 +52,22 @@ class TripCalculatorViewModel {
         let distanceInMiles = route.distanceInMiles()
         let mpg = vehicle.combinedMPG
         let gallonsNeeded = distanceInMiles / mpg
-        let cost = gallonsNeeded * fuelPrice
+        let litersPerGallon = 3.78541
+        let cost: Double
+        switch fuelPriceUnit {
+        case .perGallon:
+            cost = gallonsNeeded * fuelPrice
+        case .perLiter:
+            // Convert liters price to per-trip cost using liters consumed
+            cost = (gallonsNeeded * litersPerGallon) * fuelPrice
+        }
         
         print("🧮 Fuel Calculation:")
         print("  Distance: \(String(format: "%.2f", distanceInMiles)) miles")
         print("  MPG: \(mpg)")
         print("  Gallons needed: \(String(format: "%.2f", gallonsNeeded))")
-        print("  Fuel price: $\(fuelPrice)/gal")
+        let unitText = fuelPriceUnit == .perGallon ? "per gallon" : "per liter"
+        print("  Fuel price: $\(fuelPrice) / \(unitText)")
         print("  Total fuel cost: $\(String(format: "%.2f", cost))")
         
         return cost
@@ -86,4 +97,8 @@ class TripCalculatorViewModel {
         additionalCosts = []
         numberOfPeople = 1
     }
+
+    // MARK: - Display Helpers
+    var fuelPriceLongUnitLabel: String { fuelPriceUnit == .perGallon ? "gallon" : "liter" }
+    var fuelPriceShortUnitLabel: String { fuelPriceUnit == .perGallon ? "gal" : "L" }
 }

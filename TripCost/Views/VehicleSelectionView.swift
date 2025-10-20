@@ -15,54 +15,60 @@ struct VehicleSelectionView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         NavigationStack {
-            Group {
+            ZStack {
                 if viewModel.vehicles.isEmpty {
                     emptyState
                 } else {
-                    // Inline the vehicle list here to access bindable viewModel
-                    List {
-                        ForEach(viewModel.vehicles) { vehicle in
-                            VehicleRow(
-                                vehicle: vehicle,
-                                isSelected: viewModel.selectedVehicle?.id == vehicle.id
-                            )
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    print("🔵 Tapping vehicle: \(vehicle.displayName)")
-                                    viewModel.selectedVehicle = vehicle
-                                    print("✅ Vehicle selected: \(vehicle.displayName)")
-                                    print("✅ Current selected: \(viewModel.selectedVehicle?.displayName ?? "nil")")
-                                }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
-                                        viewModel.deleteVehicle(vehicle)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-
-                                    Button {
+                    ScrollView {
+                        VStack(spacing: 18) {
+                            ForEach(viewModel.vehicles) { vehicle in
+                                VehicleCard(
+                                    vehicle: vehicle,
+                                    isSelected: viewModel.selectedVehicle?.id == vehicle.id,
+                                    onSelect: {
+                                        viewModel.selectedVehicle = vehicle
+                                    },
+                                    onEdit: {
                                         showEditVehicle = vehicle
-                                    } label: {
-                                        Label("Edit", systemImage: "pencil")
+                                    },
+                                    onDelete: {
+                                        viewModel.deleteVehicle(vehicle)
                                     }
-                                    .tint(.blue)
-                                }
+                                )
+                            }
                         }
+                        .padding(24)
                     }
-                    .listStyle(.inset)
                 }
             }
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("My Vehicles")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showAddVehicle = true
                     } label: {
-                        Image(systemName: "plus.circle.fill")
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Add Vehicle")
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
+                        )
+                        .foregroundStyle(.blue)
+                        .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 4)
                     }
+                    .buttonStyle(.plain)
                 }
             }
-
             .sheet(isPresented: $showAddVehicle) {
                 AddVehicleView(viewModel: viewModel)
             }
@@ -102,50 +108,84 @@ struct VehicleSelectionView: View {
     }
 }
 
-struct VehicleRow: View {
+struct VehicleCard: View {
     let vehicle: Vehicle
     var isSelected: Bool = false
+    var onSelect: () -> Void
+    var onEdit: () -> Void
+    var onDelete: () -> Void
 
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: vehicle.fuelType.icon)
-                .font(.title2)
-                .foregroundStyle(isSelected ? .white : .blue)
-                .frame(width: 40)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(vehicle.displayName)
-                    .font(.headline)
-                    .foregroundStyle(isSelected ? .white : .primary)
-
-                HStack(spacing: 8) {
-                    Label("\(Int(vehicle.combinedMPG)) MPG", systemImage: "gauge.with.dots.needle.67percent")
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(.blue.opacity(0.12))
+                        .frame(width: 48, height: 48)
+                    Image(systemName: vehicle.fuelType.icon)
+                        .font(.title2)
+                        .foregroundStyle(.blue)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(vehicle.displayName)
+                        .font(.headline)
+                    HStack(spacing: 8) {
+                        Label("\(Int(vehicle.combinedMPG)) MPG", systemImage: "gauge.with.dots.needle.67percent")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(vehicle.fuelType.rawValue)
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(.blue.opacity(0.1), in: Capsule())
+                            .foregroundStyle(.blue)
+                    }
+                }
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .font(.title3)
+                } else if vehicle.isCustom {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
                         .font(.caption)
-                        .foregroundStyle(isSelected ? .white.opacity(0.9) : .secondary)
-
-                    Text(vehicle.fuelType.rawValue)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(isSelected ? .white.opacity(0.2) : .blue.opacity(0.1), in: Capsule())
-                        .foregroundStyle(isSelected ? .white : .blue)
                 }
             }
+            HStack(spacing: 12) {
+                Button {
+                    onSelect()
+                } label: {
+                    Label("Select", systemImage: "checkmark")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
 
-            Spacer()
+                Button {
+                    onEdit()
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                        .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .tint(.orange)
 
-            if isSelected {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.white)
-                    .font(.title3)
-            } else if vehicle.isCustom {
-                Image(systemName: "star.fill")
-                    .foregroundStyle(.yellow)
-                    .font(.caption)
+                Button(role: .destructive) {
+                    onDelete()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                        .font(.caption)
+                }
+                .buttonStyle(.bordered)
             }
         }
-        .padding(.vertical, 4)
-        .padding(.horizontal, 8)
-        .background(isSelected ? .blue : .clear, in: RoundedRectangle(cornerRadius: 8))
+        .padding(18)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.07), radius: 8, x: 0, y: 4)
     }
 }
