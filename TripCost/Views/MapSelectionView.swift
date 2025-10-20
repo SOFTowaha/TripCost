@@ -88,13 +88,42 @@ struct MapSelectionView: View {
 
     private var locationSelectionCard: some View {
         VStack(spacing: 12) {
+            HStack {
+                Text("Select Locations")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+                
+                // Clear/Reset button
+                if locationViewModel.startLocation != nil || locationViewModel.endLocation != nil {
+                    Button {
+                        locationViewModel.clearRoute()
+                        searchVM.query = "" // Clear search too
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.counterclockwise")
+                            Text("Reset")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            
+            Divider()
+            
             LocationInputRow(
                 icon: "a.circle.fill",
                 color: .green,
                 title: "Start Location",
                 address: locationViewModel.startAddress,
                 isSelected: isSelectingStart,
-                action: { isSelectingStart = true }
+                action: { 
+                    isSelectingStart = true
+                    searchVM.query = "" // Clear search when switching
+                }
             )
 
             Divider()
@@ -105,17 +134,27 @@ struct MapSelectionView: View {
                 title: "End Location",
                 address: locationViewModel.endAddress,
                 isSelected: !isSelectingStart,
-                action: { isSelectingStart = false }
+                action: { 
+                    isSelectingStart = false
+                    searchVM.query = "" // Clear search when switching
+                }
             )
 
             if locationViewModel.isLoadingRoute {
-                ProgressView("Calculating route...")
-                    .padding(.top, 8)
+                Divider()
+                HStack {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text("Calculating route...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 4)
             }
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(radius: 5)
+        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
 
     private var actionButtons: some View {
@@ -226,6 +265,7 @@ struct SearchBarOverlay: View {
                 TextField("Search for a place or address", text: $searchVM.query)
                     .textFieldStyle(.plain)
                     .font(.body)
+                    .foregroundStyle(.primary) // Ensure text is visible
                     .onChange(of: searchVM.query) { _, newValue in
                         searchVM.updateQuery(newValue)
                     }
@@ -241,8 +281,11 @@ struct SearchBarOverlay: View {
                 }
             }
             .padding(12)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.ultraThinMaterial)
+                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+            )
 
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
                 ScrollView {
@@ -279,6 +322,7 @@ struct SearchBarOverlay: View {
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)
                                 .contentShape(Rectangle())
+                                .background(Color.white.opacity(0.001)) // Ensure tappable area
                             }
                             .buttonStyle(.plain)
                             
@@ -289,12 +333,16 @@ struct SearchBarOverlay: View {
                         }
                     }
                 }
-                .frame(maxHeight: 200)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                .frame(maxHeight: 250)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(.ultraThinMaterial)
+                        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+                )
                 .padding(.top, 8)
             }
         }
         .frame(maxWidth: 500) // Limit width
+        .frame(maxWidth: .infinity, alignment: .leading) // Align to leading edge
     }
 }
