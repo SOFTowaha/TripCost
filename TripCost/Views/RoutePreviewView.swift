@@ -20,18 +20,24 @@ struct RoutePreviewView: View {
                 routeMap
                 routeDetails
             }
-            .background(Color(.windowBackgroundColor).ignoresSafeArea())
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("Route Preview")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()
                     } label: {
-                        Label("Close", systemImage: "xmark.circle.fill")
-                            .font(.title3)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                            .padding(8)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
-                    .buttonStyle(.borderless)
-                    .controlSize(.large)
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -49,9 +55,15 @@ struct RoutePreviewView: View {
                 MapPolyline(route.polyline).stroke(.blue, lineWidth: 5)
             }
         }
-        .frame(height: 350)
+        .frame(height: 380)
         .mapStyle(.standard(elevation: .realistic))
-        .clipShape(RoundedRectangle(cornerRadius: 0))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.2), radius: 16, x: 0, y: 8)
+        .padding(24)
     }
 
     private var routeDetails: some View {
@@ -60,17 +72,18 @@ struct RoutePreviewView: View {
                 routeInfoCard
                 directionsCard
             }
-            .padding()
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
         }
-        .background(Color(.windowBackgroundColor))
     }
 
     private var routeInfoCard: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 18) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Trip Overview")
-                        .font(.headline)
+                        .font(.title3)
+                        .fontWeight(.bold)
                         .foregroundStyle(.primary)
                     Text("Route details and estimates")
                         .font(.caption)
@@ -78,13 +91,14 @@ struct RoutePreviewView: View {
                 }
                 Spacer()
                 Image(systemName: "map.fill")
-                    .font(.title2)
-                    .foregroundStyle(.blue.opacity(0.3))
+                    .font(.title)
+                    .foregroundStyle(.blue.opacity(0.5))
             }
             
             Divider()
+                .opacity(0.5)
             
-            VStack(spacing: 12) {
+            VStack(spacing: 14) {
                 RouteInfoRow(
                     icon: "road.lanes",
                     title: "Distance",
@@ -116,26 +130,31 @@ struct RoutePreviewView: View {
                 )
             }
         }
-        .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(24)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
     }
 
     private var directionsCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
             HStack {
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                        .font(.title3)
+                        .font(.title2)
                         .foregroundStyle(.purple)
                     Text("Turn-by-Turn Directions")
-                        .font(.headline)
+                        .font(.title3)
+                        .fontWeight(.bold)
                 }
                 Spacer()
             }
             
             if let route = locationViewModel.route {
-                VStack(spacing: 12) {
+                VStack(spacing: 0) {
                     ForEach(Array(route.steps.enumerated()), id: \.offset) { index, step in
                         DirectionStep(
                             stepNumber: index + 1,
@@ -145,15 +164,20 @@ struct RoutePreviewView: View {
                         
                         if index < route.steps.count - 1 {
                             Divider()
-                                .padding(.leading, 40)
+                                .padding(.leading, 44)
+                                .opacity(0.5)
                         }
                     }
                 }
             }
         }
-        .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(24)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
     }
 
     private func formatTime(_ interval: TimeInterval) -> String {
@@ -181,18 +205,18 @@ struct RouteInfoRow: View {
     var color: Color = .blue
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .fill(color.opacity(0.1))
-                    .frame(width: 40, height: 40)
+                    .fill(color.opacity(0.15))
+                    .frame(width: 44, height: 44)
                 
                 Image(systemName: icon)
-                    .font(.headline)
+                    .font(.title3)
                     .foregroundStyle(color)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.caption)
                     .foregroundStyle(.secondary)

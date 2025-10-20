@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: macos-14
+    
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      
+    - name: Build archive
+      run: |
+        xcodebuild archive \
+          -project TripCost.xcodeproj \
+          -scheme TripCost \
+          -archivePath ./build/TripCost.xcarchive \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+          
+    - name: Export app
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath ./build/TripCost.xcarchive \
+          -exportPath ./build/export \
+          -exportOptionsPlist ExportOptions.plist || \
+        cp -R ./build/TripCost.xcarchive/Products/Applications/TripCost.app ./build/export/
+        
+    - name: Create DMG
+      run: |
+        mkdir -p ./build/dmg
+        cp -R ./build/export/TripCost.app ./build/dmg/
+        hdiutil create -volname "TripCost" \
+          -srcfolder ./build/dmg \
+          -ov -format UDZO \
+          ./build/TripCost-${{ github.ref_name }}.dmg
+          
+    - name: Create ZIP
+      run: |
+        cd ./build/export
+        zip -r ../TripCost-${{ github.ref_name }}.zip TripCost.app
+        cd ../..
+        
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+        echo "## TripCost ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### What's New" >> $GITHUB_OUTPUT
+        echo "- Modern glass UI design" >> $GITHUB_OUTPUT
+        echo "- Interactive map-based trip planning" >> $GITHUB_OUTPUT
+        echo "- Fuel cost calculations" >> $GITHUB_OUTPUT
+        echo "- Cost splitting for multiple travelers" >> $GITHUB_OUTPUT
+        echo "- Vehicle management" >> $GITHUB_OUTPUT
+        echo "- Multi-currency support" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### Installation" >> $GITHUB_OUTPUT
+        echo "1. Download the DMG or ZIP file" >> $GITHUB_OUTPUT
+        echo "2. Open the DMG and drag TripCost to Applications (or extract ZIP)" >> $GITHUB_OUTPUT
+        echo "3. Launch TripCost from Applications" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### Requirements" >> $GITHUB_OUTPUT
+        echo "- macOS 14.0 (Sonoma) or later" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./build/TripCost-${{ github.ref_name }}.dmg
+          ./build/TripCost-${{ github.ref_name }}.zip
+        body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
