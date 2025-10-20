@@ -26,162 +26,158 @@ struct MapSelectionView: View {
                 mapView
 
                 VStack(spacing: 0) {
-                    // Unified card for 'From' and 'To' selection and search
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            Button(action: {
-                                isSelectingStart = true
-                                searchVM.query = ""
-                            }) {
-                                HStack {
-                                    Image(systemName: "a.circle.fill")
-                                        .foregroundStyle(.green)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("From")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        Text(locationViewModel.startAddress.isEmpty ? "Choose starting point" : locationViewModel.startAddress)
-                                            .font(.body)
-                                            .foregroundStyle(isSelectingStart ? .primary : .secondary)
-                                    }
-                                }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(isSelectingStart ? Color(NSColor.selectedControlColor).opacity(0.08) : Color.clear)
-                                .cornerRadius(10)
-                            }
-                            Spacer(minLength: 12)
-                            Button(action: {
-                                isSelectingStart = false
-                                searchVM.query = ""
-                            }) {
-                                HStack {
-                                    Image(systemName: "b.circle.fill")
-                                        .foregroundStyle(.red)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("To")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        Text(locationViewModel.endAddress.isEmpty ? "Choose destination" : locationViewModel.endAddress)
-                                            .font(.body)
-                                            .foregroundStyle(!isSelectingStart ? .primary : .secondary)
-                                    }
-                                }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(!isSelectingStart ? Color(NSColor.selectedControlColor).opacity(0.08) : Color.clear)
-                                .cornerRadius(10)
-                            }
-                        }
-                        .padding(.horizontal, 18)
-                        .padding(.top, 18)
-
-                        // Single search bar
-                        HStack(spacing: 10) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundStyle(.secondary)
-                                .font(.title2)
-                            TextField(isSelectingStart ? "Search starting point" : "Search destination", text: $searchVM.query)
-                                .textFieldStyle(.plain)
-                                .font(.title3)
-                                .padding(.vertical, 8)
-                                .onChange(of: searchVM.query) { _, newValue in
-                                    searchVM.updateQuery(newValue)
-                                }
-                            if searchVM.isLoading == true {
-                                ProgressView()
-                                    .scaleEffect(0.7)
-                            }
-                            if !searchVM.query.isEmpty {
-                                Button {
-                                    searchVM.query = ""
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
+                    // Apple Maps-style vertical stack for 'From' and 'To'
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            isSelectingStart = true
+                            searchVM.query = ""
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "a.circle.fill")
+                                    .foregroundStyle(.green)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("From")
+                                        .font(.caption)
                                         .foregroundStyle(.secondary)
+                                    Text(locationViewModel.startAddress.isEmpty ? "Choose starting point" : locationViewModel.startAddress)
+                                        .font(.body)
+                                        .foregroundStyle(isSelectingStart ? .primary : .secondary)
                                 }
-                                .buttonStyle(.plain)
                             }
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 18)
+                            .background(isSelectingStart ? Color(NSColor.selectedControlColor).opacity(0.12) : Color(NSColor.windowBackgroundColor))
+                            .cornerRadius(14)
+                            .shadow(color: isSelectingStart ? Color.black.opacity(0.10) : .clear, radius: 8, x: 0, y: 2)
                         }
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color(NSColor.windowBackgroundColor))
-                                .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 4)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .stroke(Color(NSColor.separatorColor), lineWidth: 1)
-                        )
-                        .padding(.horizontal, 18)
-                        .padding(.bottom, 2)
+                        Button(action: {
+                            isSelectingStart = false
+                            searchVM.query = ""
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "b.circle.fill")
+                                    .foregroundStyle(.red)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("To")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                    Text(locationViewModel.endAddress.isEmpty ? "Choose destination" : locationViewModel.endAddress)
+                                        .font(.body)
+                                        .foregroundStyle(!isSelectingStart ? .primary : .secondary)
+                                }
+                            }
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 18)
+                            .background(!isSelectingStart ? Color(NSColor.selectedControlColor).opacity(0.12) : Color(NSColor.windowBackgroundColor))
+                            .cornerRadius(14)
+                            .shadow(color: !isSelectingStart ? Color.black.opacity(0.10) : .clear, radius: 8, x: 0, y: 2)
+                        }
+                    }
+                    .padding(.top, 24)
+                    .padding(.horizontal, 32)
 
-                        // Single-column results
-                        if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
-                            VStack(spacing: 0) {
-                                ForEach(searchVM.suggestions, id: \ .self) { suggestion in
+                    // Search bar and results below active card
+                    if isSelectingStart || !isSelectingStart {
+                        VStack(spacing: 0) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(.secondary)
+                                    .font(.title2)
+                                TextField(isSelectingStart ? "Search starting point" : "Search destination", text: $searchVM.query)
+                                    .textFieldStyle(.plain)
+                                    .font(.title3)
+                                    .padding(.vertical, 8)
+                                    .onChange(of: searchVM.query) { _, newValue in
+                                        searchVM.updateQuery(newValue)
+                                    }
+                                if searchVM.isLoading == true {
+                                    ProgressView()
+                                        .scaleEffect(0.7)
+                                }
+                                if !searchVM.query.isEmpty {
                                     Button {
-                                        Task {
-                                            if let item = await searchVM.resolve(suggestion) {
-                                                if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
-                                                    if isSelectingStart {
-                                                        locationViewModel.setStartLocation(coord)
-                                                    } else {
-                                                        locationViewModel.setEndLocation(coord)
-                                                    }
-                                                    locationViewModel.region.center = coord
-                                                }
-                                                searchVM.query = "" // Clear search after selection
-                                            }
-                                        }
+                                        searchVM.query = ""
                                     } label: {
-                                        HStack(spacing: 12) {
-                                            Image(systemName: "mappin.circle.fill")
-                                                .foregroundStyle(Color.accentColor)
-                                                .font(.title3)
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(suggestion.title)
-                                                    .font(.system(size: 15, weight: .medium))
-                                                    .foregroundStyle(.primary)
-                                                if !suggestion.subtitle.isEmpty {
-                                                    Text(suggestion.subtitle)
-                                                        .font(.system(size: 12))
-                                                        .foregroundStyle(.secondary)
-                                                }
-                                            }
-                                            Spacer()
-                                        }
-                                        .padding(.horizontal, 18)
-                                        .padding(.vertical, 10)
-                                        .contentShape(Rectangle())
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
                                     }
                                     .buttonStyle(.plain)
-                                    if suggestion != searchVM.suggestions.last {
-                                        Divider()
-                                            .padding(.leading, 44)
-                                    }
                                 }
                             }
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 6)
                             .background(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                                     .fill(Color(NSColor.windowBackgroundColor))
-                                    .shadow(color: Color.black.opacity(0.10), radius: 10, x: 0, y: 2)
+                                    .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 4)
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                                     .stroke(Color(NSColor.separatorColor), lineWidth: 1)
                             )
-                            .frame(maxWidth: 600, maxHeight: 320)
-                            .padding(.horizontal, 18)
+                            .padding(.horizontal, 32)
+                            .padding(.bottom, 2)
+
+                            // Single-column results
+                            if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
+                                VStack(spacing: 0) {
+                                    ForEach(searchVM.suggestions, id: \ .self) { suggestion in
+                                        Button {
+                                            Task {
+                                                if let item = await searchVM.resolve(suggestion) {
+                                                    if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
+                                                        if isSelectingStart {
+                                                            locationViewModel.setStartLocation(coord)
+                                                        } else {
+                                                            locationViewModel.setEndLocation(coord)
+                                                        }
+                                                        locationViewModel.region.center = coord
+                                                    }
+                                                    searchVM.query = "" // Clear search after selection
+                                                }
+                                            }
+                                        } label: {
+                                            HStack(spacing: 12) {
+                                                Image(systemName: "mappin.circle.fill")
+                                                    .foregroundStyle(Color.accentColor)
+                                                    .font(.title3)
+                                                VStack(alignment: .leading, spacing: 2) {
+                                                    Text(suggestion.title)
+                                                        .font(.system(size: 15, weight: .medium))
+                                                        .foregroundStyle(.primary)
+                                                    if !suggestion.subtitle.isEmpty {
+                                                        Text(suggestion.subtitle)
+                                                            .font(.system(size: 12))
+                                                            .foregroundStyle(.secondary)
+                                                    }
+                                                }
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal, 18)
+                                            .padding(.vertical, 10)
+                                            .contentShape(Rectangle())
+                                        }
+                                        .buttonStyle(.plain)
+                                        if suggestion != searchVM.suggestions.last {
+                                            Divider()
+                                                .padding(.leading, 44)
+                                        }
+                                    }
+                                }
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(Color(NSColor.windowBackgroundColor))
+                                        .shadow(color: Color.black.opacity(0.10), radius: 10, x: 0, y: 2)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+                                )
+                                .frame(maxWidth: 600, maxHeight: 320)
+                                .padding(.horizontal, 32)
+                            }
                         }
                     }
-                    .background(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color(NSColor.windowBackgroundColor))
-                            .shadow(color: Color.black.opacity(0.18), radius: 18, x: 0, y: 8)
-                    )
-                    .padding(.top, 24)
-                    .padding(.horizontal, 32)
 
                     Spacer()
 
