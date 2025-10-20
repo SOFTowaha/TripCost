@@ -99,6 +99,57 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## Future Plans
+
+TripCost is evolving into a comprehensive trip planning tool for camping, hiking, and outdoor adventures. Here's what's coming:
+
+### 🗺️ Trip Management
+- [ ] Save and manage multiple trips
+- [ ] Trip history with dates and locations
+- [ ] Favorite routes and destinations
+- [ ] Export trip data to PDF/CSV
+
+### 📝 Notes & Lists
+- [ ] Notes feature for trip planning
+- [ ] Packing lists (food, clothing, gear)
+- [ ] Camping checklist templates
+- [ ] Trail-specific notes and tips
+
+### 🏕️ Camping & Outdoor Features
+- [ ] Campground finder integration
+- [ ] Trail difficulty ratings
+- [ ] Weather forecasts for destinations
+- [ ] Hiking distance and elevation tracking
+- [ ] Wildlife and safety alerts
+
+### 🍽️ Trip Expenses
+- [ ] Food budget tracking
+- [ ] Camping gear costs
+- [ ] Park entrance fees
+- [ ] Equipment rental tracking
+- [ ] Per-day expense breakdown
+
+### 🎒 Gear & Equipment
+- [ ] Gear checklist manager
+- [ ] Equipment weight calculator
+- [ ] Gear recommendations by trip type
+- [ ] Shared gear tracking for group trips
+
+### 👥 Group Trip Features
+- [ ] Shared trip planning
+- [ ] Group expense splitting
+- [ ] Task assignments
+- [ ] Real-time trip updates
+
+### 📱 Additional Features
+- [ ] Offline maps support
+- [ ] GPS tracking during trips
+- [ ] Photo gallery per trip
+- [ ] Trip timeline/itinerary builder
+- [ ] Emergency contacts and info
+
+Want to suggest a feature? [Open an issue](https://github.com/SOFTowaha/TripCost/issues) or contribute!
+
 ## License
 
 [Choose your license - MIT, Apache 2.0, etc.]
