@@ -11,17 +11,19 @@ struct PlaceSearchModal: View {
             HStack {
                 Text(title)
                     .font(.title2)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                 Spacer()
                 Button(action: { searchVM.query = "" }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
                         .foregroundStyle(.secondary)
+                        .padding(8)
+                        .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 24)
+            .padding(.horizontal, 28)
+            .padding(.top, 28)
 
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
@@ -30,7 +32,7 @@ struct PlaceSearchModal: View {
                 TextField("Search for a place or address", text: $searchVM.query)
                     .textFieldStyle(.plain)
                     .font(.title3)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 12)
                     .onChange(of: searchVM.query) { _, newValue in
                         searchVM.updateQuery(newValue)
                     }
@@ -48,21 +50,19 @@ struct PlaceSearchModal: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(NSColor.windowBackgroundColor))
-                    .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 4)
-            )
+            .padding(.horizontal, 20)
+            .padding(.vertical, 4)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
-            .padding(.horizontal, 24)
-            .padding(.bottom, 2)
+            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
+            .padding(.horizontal, 28)
+            .padding(.top, 16)
+            .padding(.bottom, 8)
 
-            // Single-column results
+            // Single-column results with glass design
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
                 ScrollView {
                     VStack(spacing: 0) {
@@ -75,11 +75,11 @@ struct PlaceSearchModal: View {
                                     }
                                 }
                             } label: {
-                                HStack(spacing: 12) {
+                                HStack(spacing: 14) {
                                     Image(systemName: "mappin.circle.fill")
                                         .foregroundStyle(Color.accentColor)
                                         .font(.title3)
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: 3) {
                                         Text(suggestion.title)
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundStyle(.primary)
@@ -91,37 +91,36 @@ struct PlaceSearchModal: View {
                                     }
                                     Spacer()
                                 }
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 10)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(Color.clear)
+                                )
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             if suggestion != searchVM.suggestions.last {
                                 Divider()
-                                    .padding(.leading, 44)
+                                    .padding(.leading, 50)
+                                    .opacity(0.5)
                             }
                         }
                     }
+                    .padding(.vertical, 8)
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color(NSColor.windowBackgroundColor))
-                        .shadow(color: Color.black.opacity(0.10), radius: 10, x: 0, y: 2)
-                )
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
                 )
-                .frame(maxWidth: 600, maxHeight: 320)
-                .padding(.horizontal, 24)
+                .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 6)
+                .frame(maxWidth: 600, maxHeight: 360)
+                .padding(.horizontal, 28)
             }
             Spacer()
         }
         .frame(minWidth: 400, maxWidth: 600, minHeight: 400, maxHeight: 600)
-        .background(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(NSColor.windowBackgroundColor))
-                .shadow(color: Color.black.opacity(0.18), radius: 18, x: 0, y: 8)
-        )
+        .background(.thinMaterial)
     }
 }
