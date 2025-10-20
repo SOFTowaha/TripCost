@@ -365,33 +365,130 @@ struct CostBreakdownView: View {
 }
 
 struct InfoRow: View {
+    var icon: String? = nil
     let label: String
     let value: String
+    
     var body: some View {
-        HStack {
-            Text(label).font(.subheadline).foregroundStyle(.secondary)
+        HStack(spacing: 12) {
+            if let icon = icon {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 20)
+            }
+            
+            Text(label)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            
             Spacer()
-            Text(value).font(.subheadline).fontWeight(.medium)
+            
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
         }
     }
 }
 
 struct AdditionalCostRow: View {
     let cost: AdditionalCost
+    let currencyCode: String
     let onDelete: () -> Void
+    
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: cost.category.icon).foregroundStyle(.blue).frame(width: 24)
+            ZStack {
+                Circle()
+                    .fill(.orange.opacity(0.1))
+                    .frame(width: 36, height: 36)
+                
+                Image(systemName: cost.category.icon)
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+            
             VStack(alignment: .leading, spacing: 2) {
-                Text(cost.category.rawValue).font(.subheadline).fontWeight(.medium)
+                Text(cost.category.rawValue)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
                 if !cost.notes.isEmpty {
-                    Text(cost.notes).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    Text(cost.notes)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
+            
             Spacer()
-            Text(CurrencyFormatter.format(cost.amount)).font(.subheadline).fontWeight(.semibold)
-            Button(role: .destructive, action: onDelete) { Image(systemName: "trash").font(.caption) }
+            
+            Text(CurrencyFormatter.format(cost.amount, currencyCode: currencyCode))
+                .font(.subheadline)
+                .fontWeight(.bold)
+            
+            Button(role: .destructive, action: onDelete) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.red.opacity(0.7))
+            }
+            .buttonStyle(.plain)
         }
-        .padding(.vertical, 8)
+        .padding(12)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// Currency Picker View
+struct CurrencyPickerView: View {
+    @Environment(\.dismiss) var dismiss
+    @Binding var selectedCurrency: String
+    
+    let currencies = [
+        ("USD", "US Dollar", "$"),
+        ("EUR", "Euro", "€"),
+        ("GBP", "British Pound", "£"),
+        ("JPY", "Japanese Yen", "¥"),
+        ("CAD", "Canadian Dollar", "C$"),
+        ("AUD", "Australian Dollar", "A$"),
+        ("CHF", "Swiss Franc", "CHF"),
+        ("CNY", "Chinese Yuan", "¥"),
+        ("INR", "Indian Rupee", "₹"),
+        ("MXN", "Mexican Peso", "$")
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            List(currencies, id: \.0) { code, name, symbol in
+                Button {
+                    selectedCurrency = code
+                    dismiss()
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(name)
+                                .font(.headline)
+                            Text("\(code) - \(symbol)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        if selectedCurrency == code {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+            .navigationTitle("Select Currency")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { dismiss() }
+                }
+            }
+        }
     }
 }
