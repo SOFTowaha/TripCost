@@ -151,7 +151,17 @@ struct MapSelectionView: View {
 
     // Replace 'mapView' computed var with:
     private var mapView: some View {
-        ZStack(alignment: .topLeading) {
+        let handlePick: (MKMapItem) -> Void = { item in
+            if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
+                if isSelectingStart {
+                    locationViewModel.setStartLocation(coord)
+                } else {
+                    locationViewModel.setEndLocation(coord)
+                }
+                locationViewModel.region.center = coord
+            }
+        }
+        return ZStack(alignment: .topLeading) {
             MapTapViewRepresentable(
                 region: $locationViewModel.region,
                 onTap: { coordinate in
@@ -163,21 +173,9 @@ struct MapSelectionView: View {
                 },
                 route: locationViewModel.route
             )
-            
-            // Search overlay positioned at top-leading
             SearchBarOverlay(
                 searchVM: searchVM,
-                onPick: { item in
-                    if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
-                        if isSelectingStart {
-                            locationViewModel.setStartLocation(coord)
-                        } else {
-                            locationViewModel.setEndLocation(coord)
-                        }
-                        // recenter map
-                        locationViewModel.region.center = coord
-                    }
-                }
+                onPick: handlePick
             )
             .padding(.horizontal, 16)
             .padding(.top, 16)
