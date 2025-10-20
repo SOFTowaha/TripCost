@@ -10,6 +10,7 @@ import SwiftUI
 struct CostSplitView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var calculatorViewModel: TripCalculatorViewModel
+    @Bindable var vehicleViewModel: VehicleViewModel
 
     var body: some View {
         NavigationStack {
@@ -37,7 +38,7 @@ struct CostSplitView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Text(CurrencyFormatter.format(calculatorViewModel.tripCost?.totalCost ?? 0))
+            Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.totalCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
                 .font(.system(size: 36, weight: .bold, design: .rounded))
         }
         .frame(maxWidth: .infinity)
@@ -96,7 +97,7 @@ struct CostSplitView: View {
                 Text("Each person pays")
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson()))
+                Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(vehicle: vehicleViewModel.selectedVehicle), currencyCode: calculatorViewModel.currencyCode))
                     .font(.title3)
                     .fontWeight(.bold)
                     .contentTransition(.numericText())
