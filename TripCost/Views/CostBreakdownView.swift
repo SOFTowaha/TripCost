@@ -463,36 +463,61 @@ struct CurrencyPickerView: View {
     
     var body: some View {
         NavigationStack {
-            List(currencies, id: \.0) { code, name, symbol in
-                Button {
-                    selectedCurrency = code
-                    dismiss()
-                } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(name)
-                                .font(.headline)
-                            Text("\(code) - \(symbol)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+            List {
+                ForEach(currencies, id: \.0) { code, name, symbol in
+                    Button {
+                        selectedCurrency = code
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 16) {
+                            ZStack {
+                                Circle()
+                                    .fill(selectedCurrency == code ? .blue.opacity(0.1) : .gray.opacity(0.1))
+                                    .frame(width: 44, height: 44)
+                                
+                                Text(symbol)
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(selectedCurrency == code ? .blue : .secondary)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(name)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                
+                                Text(code)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if selectedCurrency == code {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
+                            }
                         }
-                        
-                        Spacer()
-                        
-                        if selectedCurrency == code {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.blue)
-                        }
+                        .padding(.vertical, 4)
                     }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            .listStyle(.inset)
             .navigationTitle("Select Currency")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark.circle.fill")
+                            .font(.title3)
+                    }
+                    .buttonStyle(.borderless)
                 }
             }
         }
+        .frame(minWidth: 400, minHeight: 500)
     }
 }
