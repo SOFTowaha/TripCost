@@ -20,7 +20,16 @@ class TripCalculatorViewModel {
     var currencyCode = "USD" // New: Currency selection
     
     var tripCost: TripCost? {
-        guard let route = tripRoute, let vehicle = selectedVehicle else { return nil }
+        guard let route = tripRoute else {
+            print("❌ No route available for cost calculation")
+            return nil
+        }
+        guard let vehicle = selectedVehicle else {
+            print("❌ No vehicle selected for cost calculation")
+            return nil
+        }
+        
+        print("✅ Calculating cost with route: \(route.distanceInMiles()) miles, vehicle: \(vehicle.displayName)")
         let fuelCost = calculateFuelCost(route: route, vehicle: vehicle)
         return TripCost(fuelCost: fuelCost, additionalCosts: additionalCosts)
     }

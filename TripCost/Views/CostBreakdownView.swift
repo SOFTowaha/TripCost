@@ -37,13 +37,11 @@ struct CostBreakdownView: View {
                     Button {
                         dismiss()
                     } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title3)
-                            Text("Close")
-                        }
+                        Label("Close", systemImage: "xmark.circle.fill")
+                            .font(.title3)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.borderless)
+                    .controlSize(.large)
                 }
                 
                 if vehicleViewModel.selectedVehicle != nil {
@@ -52,21 +50,18 @@ struct CostBreakdownView: View {
                             showCurrencyPicker = true
                         } label: {
                             HStack(spacing: 4) {
-                                Image(systemName: "dollarsign.circle.fill")
+                                Image(systemName: "dollarsign.circle")
                                 Text(calculatorViewModel.currencyCode)
                             }
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.borderless)
                     }
                     
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             showAddCost = true
                         } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "plus.circle.fill")
-                                Text("Add Cost")
-                            }
+                            Label("Add Cost", systemImage: "plus.circle.fill")
                         }
                         .buttonStyle(.borderedProminent)
                     }
