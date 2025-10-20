@@ -103,7 +103,7 @@ extension AddCostView {
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .textFieldStyle(.plain)
                     .multilineTextAlignment(.leading)
-                    .onChange(of: amount) { newValue in
+                    .onChange(of: amount) { _, newValue in
                         amount = sanitizeAmountInput(newValue)
                     }
             }
@@ -169,7 +169,7 @@ extension AddCostView {
 // MARK: - Helpers
 extension AddCostView {
     private var currencySymbol: String {
-        let code = calculatorViewModel.currencyCode
+        let code = calculatorViewModel.currency.identifier
         // Try to find a locale that uses this currency code to get its symbol
         for id in Locale.availableIdentifiers {
             let locale = Locale(identifier: id)
