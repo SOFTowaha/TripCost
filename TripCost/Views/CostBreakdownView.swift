@@ -70,8 +70,40 @@ struct CostBreakdownView: View {
         VStack(spacing: 16) {
             Image(systemName: "car.circle.fill").font(.system(size: 60)).foregroundStyle(.secondary)
             Text("Select a Vehicle").font(.title2).fontWeight(.semibold)
-            Text("Choose a vehicle from the Vehicles tab to calculate fuel costs")
+            Text("Choose a vehicle to calculate fuel costs")
                 .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            
+            // Show available vehicles if any exist
+            if !vehicleViewModel.vehicles.isEmpty {
+                VStack(spacing: 8) {
+                    Text("Available Vehicles:").font(.headline).padding(.top, 8)
+                    ForEach(vehicleViewModel.vehicles) { vehicle in
+                        Button {
+                            vehicleViewModel.selectedVehicle = vehicle
+                            print("✅ Selected vehicle in Cost Breakdown: \(vehicle.displayName)")
+                        } label: {
+                            HStack {
+                                Image(systemName: vehicle.fuelType.icon)
+                                    .foregroundStyle(.blue)
+                                VStack(alignment: .leading) {
+                                    Text(vehicle.displayName)
+                                        .font(.headline)
+                                    Text("\(Int(vehicle.combinedMPG)) MPG")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal)
+            }
         }
         .padding().frame(maxWidth: .infinity, maxHeight: .infinity)
     }

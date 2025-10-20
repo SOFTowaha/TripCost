@@ -13,12 +13,43 @@ struct VehicleSelectionView: View {
     @State private var showEditVehicle: Vehicle?
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         NavigationStack {
             Group {
                 if viewModel.vehicles.isEmpty {
                     emptyState
                 } else {
-                    vehicleList
+                    // Inline the vehicle list here to access bindable viewModel
+                    List {
+                        ForEach(viewModel.vehicles) { vehicle in
+                            VehicleRow(
+                                vehicle: vehicle,
+                                isSelected: viewModel.selectedVehicle?.id == vehicle.id
+                            )
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    print("🔵 Tapping vehicle: \(vehicle.displayName)")
+                                    viewModel.selectedVehicle = vehicle
+                                    print("✅ Vehicle selected: \(vehicle.displayName)")
+                                    print("✅ Current selected: \(viewModel.selectedVehicle?.displayName ?? "nil")")
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        viewModel.deleteVehicle(vehicle)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+
+                                    Button {
+                                        showEditVehicle = vehicle
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
+                        }
+                    }
+                    .listStyle(.inset)
                 }
             }
             .navigationTitle("My Vehicles")
@@ -68,37 +99,6 @@ struct VehicleSelectionView: View {
             }
         }
         .padding()
-    }
-
-    private var vehicleList: some View {
-        List {
-            ForEach(viewModel.vehicles) { vehicle in
-                VehicleRow(
-                    vehicle: vehicle,
-                    isSelected: viewModel.selectedVehicle?.id == vehicle.id
-                )
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        viewModel.selectedVehicle = vehicle
-                        print("✅ Vehicle selected: \(vehicle.displayName)")
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            viewModel.deleteVehicle(vehicle)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-
-                        Button {
-                            showEditVehicle = vehicle
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(.blue)
-                    }
-            }
-        }
-        .listStyle(.inset)
     }
 }
 
