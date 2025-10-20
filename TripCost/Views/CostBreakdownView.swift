@@ -28,20 +28,26 @@ struct CostBreakdownView: View {
                         splitCostButton
                     }
                 }
-                .padding()
+                .padding(24)
             }
-            .background(Color(.windowBackgroundColor).ignoresSafeArea())
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("Cost Breakdown")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()
                     } label: {
-                        Label("Close", systemImage: "xmark.circle.fill")
-                            .font(.title3)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                            .padding(8)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
-                    .buttonStyle(.borderless)
-                    .controlSize(.large)
+                    .buttonStyle(.plain)
                 }
                 
                 if vehicleViewModel.selectedVehicle != nil {
@@ -49,21 +55,42 @@ struct CostBreakdownView: View {
                         Button {
                             showCurrencyPicker = true
                         } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "dollarsign.circle")
-                                Text(calculatorViewModel.currencyCode)
+                            HStack(spacing: 6) {
+                                Image(systemName: "dollarsign.circle.fill")
+                                Text(calculatorViewModel.currency.symbol)
+                                    .fontWeight(.medium)
                             }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                            )
                         }
-                        .buttonStyle(.borderless)
+                        .buttonStyle(.plain)
                     }
                     
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             showAddCost = true
                         } label: {
-                            Label("Add Cost", systemImage: "plus.circle.fill")
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus.circle.fill")
+                                Text("Add Cost")
+                                    .fontWeight(.semibold)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
+                            )
+                            .foregroundStyle(.blue)
+                            .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 4)
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -74,7 +101,7 @@ struct CostBreakdownView: View {
                 CostSplitView(calculatorViewModel: calculatorViewModel, vehicleViewModel: vehicleViewModel)
             }
             .sheet(isPresented: $showCurrencyPicker) {
-                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
+                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currency)
             }
         }
     }
@@ -184,27 +211,34 @@ struct CostBreakdownView: View {
     }
 
     private var totalCostCard: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 18) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Total Trip Cost")
-                        .font(.subheadline)
+                        .font(.callout)
                         .foregroundStyle(.secondary)
                     
-                    Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.totalCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
-                        .foregroundStyle(.primary)
+                    Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.totalCost ?? 0, currencyCode: calculatorViewModel.currency.id))
+                        .font(.system(size: 52, weight: .bold, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.blue.opacity(0.3))
+                    .font(.system(size: 44))
+                    .foregroundStyle(.blue.opacity(0.4))
             }
             
             if calculatorViewModel.numberOfPeople > 1 {
                 Divider()
+                    .opacity(0.5)
                 
                 HStack {
                     Label("Per Person", systemImage: "person.fill")
@@ -213,55 +247,50 @@ struct CostBreakdownView: View {
                     
                     Spacer()
                     
-                    Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(vehicle: vehicleViewModel.selectedVehicle), currencyCode: calculatorViewModel.currencyCode))
-                        .font(.title3)
-                        .fontWeight(.semibold)
+                    Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(vehicle: vehicleViewModel.selectedVehicle), currencyCode: calculatorViewModel.currency.id))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
                 }
             }
         }
-        .padding(24)
-        .background(
-            LinearGradient(
-                colors: [.blue.opacity(0.15), .purple.opacity(0.15)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ),
-            in: RoundedRectangle(cornerRadius: 20)
-        )
+        .padding(28)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(LinearGradient(
-                    colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [.blue.opacity(0.4), .purple.opacity(0.4)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 2
+                )
         )
-        .shadow(color: .blue.opacity(0.1), radius: 10, x: 0, y: 5)
+        .shadow(color: .blue.opacity(0.2), radius: 16, x: 0, y: 8)
     }
 
     private var fuelCostCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
             HStack {
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Image(systemName: "fuelpump.fill")
-                        .font(.title3)
+                        .font(.title2)
                         .foregroundStyle(.green)
                     Text("Fuel Cost")
-                        .font(.headline)
+                        .font(.title3)
+                        .fontWeight(.bold)
                 }
-                
                 Spacer()
-                
-                Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.fuelCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
-                    .font(.title3)
+                Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.fuelCost ?? 0, currencyCode: calculatorViewModel.currency.id))
+                    .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.green)
             }
-            
             if let vehicle = vehicleViewModel.selectedVehicle {
                 Divider()
-                
-                VStack(spacing: 10) {
+                    .opacity(0.5)
+                VStack(spacing: 12) {
                     InfoRow(
                         icon: "car.fill",
                         label: "Vehicle",
@@ -280,54 +309,65 @@ struct CostBreakdownView: View {
                     InfoRow(
                         icon: "dollarsign.circle.fill",
                         label: "Fuel Price",
-                        value: CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode) + "/gal"
+                        value: CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currency.id) + "/" + calculatorViewModel.fuelPriceShortUnitLabel
                     )
                 }
             }
         }
-        .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(24)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
     }
 
     private var additionalCostsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
             HStack {
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Image(systemName: "plus.square.fill")
-                        .font(.title3)
+                        .font(.title2)
                         .foregroundStyle(.orange)
                     Text("Additional Costs")
-                        .font(.headline)
+                        .font(.title3)
+                        .fontWeight(.bold)
                 }
                 
                 Spacer()
                 
                 Text(CurrencyFormatter.format(
                     calculatorViewModel.additionalCosts.reduce(0) { $0 + $1.amount },
-                    currencyCode: calculatorViewModel.currencyCode
+                    currencyCode: calculatorViewModel.currency.id
                 ))
-                    .font(.title3)
+                    .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.orange)
             }
             
             if calculatorViewModel.additionalCosts.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "tray")
-                        .font(.system(size: 30))
-                        .foregroundStyle(.tertiary)
+                    Divider()
+                        .opacity(0.5)
+                
+                    VStack(spacing: 10) {
+                        Image(systemName: "tray")
+                            .font(.system(size: 36))
+                            .foregroundStyle(.tertiary)
                     
-                    Text("No additional costs")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
+                        Text("No additional costs")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 24)
             } else {
-                VStack(spacing: 8) {
+                    Divider()
+                        .opacity(0.5)
+                
+                    VStack(spacing: 10) {
                     ForEach(calculatorViewModel.additionalCosts) { cost in
-                        AdditionalCostRow(cost: cost, currencyCode: calculatorViewModel.currencyCode) {
+                        AdditionalCostRow(cost: cost, currencyCode: calculatorViewModel.currency.id) {
                             withAnimation {
                                 calculatorViewModel.removeAdditionalCost(cost)
                             }
@@ -336,33 +376,35 @@ struct CostBreakdownView: View {
                 }
             }
         }
-        .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(24)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
     }
 
     private var splitCostButton: some View {
         Button {
             showSplitView = true
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Image(systemName: "person.3.fill")
-                    .font(.headline)
+                    .font(.title3)
                 Text("Split Cost Among People")
-                    .font(.headline)
+                    .font(.body)
+                    .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(
-                LinearGradient(
-                    colors: [.green, .green.opacity(0.8)],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.green.opacity(0.3), lineWidth: 1.5)
             )
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .shadow(color: .green.opacity(0.3), radius: 8, x: 0, y: 4)
+            .foregroundStyle(.green)
+            .shadow(color: .green.opacity(0.25), radius: 12, x: 0, y: 6)
         }
         .buttonStyle(.plain)
     }
@@ -444,80 +486,134 @@ struct AdditionalCostRow: View {
 }
 
 // Currency Picker View
+import Foundation
 struct CurrencyPickerView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var selectedCurrency: String
-    
-    let currencies = [
-        ("USD", "US Dollar", "$"),
-        ("EUR", "Euro", "€"),
-        ("GBP", "British Pound", "£"),
-        ("JPY", "Japanese Yen", "¥"),
-        ("CAD", "Canadian Dollar", "C$"),
-        ("AUD", "Australian Dollar", "A$"),
-        ("CHF", "Swiss Franc", "CHF"),
-        ("CNY", "Chinese Yuan", "¥"),
-        ("INR", "Indian Rupee", "₹"),
-        ("MXN", "Mexican Peso", "$")
+    @Binding var selectedCurrency: Currency
+    @State private var query: String = ""
+
+    let currencies: [Currency] = Currency.all
+
+    // Map currency code to a representative region code for flag rendering
+    private let currencyRegionMap: [String: String] = [
+        "USD": "US",
+        "EUR": "EU",
+        "GBP": "GB",
+        "JPY": "JP",
+        "CAD": "CA",
+        "AUD": "AU",
+        "CHF": "CH",
+        "CNY": "CN",
+        "INR": "IN",
+        "MXN": "MX"
     ]
-    
+
+    private var filteredCurrencies: [Currency] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !q.isEmpty else { return currencies }
+        return currencies.filter { currency in
+            currency.id.lowercased().contains(q) ||
+            currency.name.lowercased().contains(q) ||
+            currency.symbol.lowercased().contains(q)
+        }
+    }
+
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(currencies, id: \.0) { code, name, symbol in
-                    Button {
-                        selectedCurrency = code
-                        dismiss()
-                    } label: {
-                        HStack(spacing: 16) {
-                            ZStack {
-                                Circle()
-                                    .fill(selectedCurrency == code ? .blue.opacity(0.1) : .gray.opacity(0.1))
-                                    .frame(width: 44, height: 44)
-                                
-                                Text(symbol)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(selectedCurrency == code ? .blue : .secondary)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(name)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                
-                                Text(code)
+            ScrollView {
+                VStack(spacing: 16) {
+                    searchBar
+                    ForEach(filteredCurrencies, id: \ .id) { currency in
+                        Button {
+                            selectedCurrency = currency
+                            dismiss()
+                        } label: {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .fill(selectedCurrency == currency ? .blue.opacity(0.12) : .gray.opacity(0.12))
+                                        .frame(width: 46, height: 46)
+                                    Text(flagEmoji(for: currencyRegionMap[currency.id] ?? "US"))
+                                        .font(.title2)
+                                }
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(currency.name)
+                                        .font(.headline)
+                                    HStack(spacing: 6) {
+                                        Text(currency.id)
+                                        Text(currency.symbol)
+                                            .foregroundStyle(.secondary)
+                                    }
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                if selectedCurrency == currency {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(.blue)
+                                }
                             }
-                            
-                            Spacer()
-                            
-                            if selectedCurrency == code {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                            }
+                            .padding(14)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
                         }
-                        .padding(.vertical, 4)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .padding(24)
             }
-            .listStyle(.inset)
+            .background(
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .ignoresSafeArea()
+            )
             .navigationTitle("Select Currency")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()
                     } label: {
-                        Label("Close", systemImage: "xmark.circle.fill")
-                            .font(.title3)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                            .padding(8)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.plain)
                 }
             }
         }
-        .frame(minWidth: 400, minHeight: 500)
+        .frame(minWidth: 480, minHeight: 560)
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField("Search currency, code, or symbol", text: $query)
+                .textFieldStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Flag Helpers
+    private func flagEmoji(for regionCode: String) -> String {
+        let upper = regionCode.uppercased()
+        var scalarView = String.UnicodeScalarView()
+        for u in upper.unicodeScalars {
+            guard let flagScalar = UnicodeScalar(127397 + Int(u.value)) else { continue }
+            scalarView.append(flagScalar)
+        }
+        return String(scalarView)
     }
 }
