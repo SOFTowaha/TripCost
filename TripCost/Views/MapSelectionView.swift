@@ -147,10 +147,11 @@ struct MapSelectionView: View {
             // Keep camera centered on current region center
             cameraPosition = .region(locationViewModel.region)
         }
-        .onChange(of: locationViewModel.region.center) { _, newCenter in
-            var region = locationViewModel.region
-            region.center = newCenter
-            cameraPosition = .region(region)
+        .onChange(of: locationViewModel.region.center.latitude) { _, _ in
+            cameraPosition = .region(locationViewModel.region)
+        }
+        .onChange(of: locationViewModel.region.center.longitude) { _, _ in
+            cameraPosition = .region(locationViewModel.region)
         }
     }
 
