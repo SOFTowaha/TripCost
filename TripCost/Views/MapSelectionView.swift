@@ -70,11 +70,18 @@ struct MapSelectionView: View {
                         // Results dropdown
                         if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
                             VStack(spacing: 0) {
-                                ForEach(searchVM.suggestions, id: \ .self) { suggestion in
+                                ForEach(searchVM.suggestions, id: \.self) { suggestion in
                                     Button {
                                         Task {
                                             if let item = await searchVM.resolve(suggestion) {
-                                                onPick(item)
+                                                if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
+                                                    if isSelectingStart {
+                                                        locationViewModel.setStartLocation(coord)
+                                                    } else {
+                                                        locationViewModel.setEndLocation(coord)
+                                                    }
+                                                    locationViewModel.region.center = coord
+                                                }
                                                 searchVM.query = "" // Clear search after selection
                                             }
                                         }
@@ -454,3 +461,4 @@ struct SearchBarOverlay: View {
         .frame(maxWidth: 500)
     }
 }
+
