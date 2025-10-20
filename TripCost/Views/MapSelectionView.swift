@@ -273,8 +273,6 @@ struct SearchBarOverlay: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .background(Color.black.opacity(0.001)) // For hover effect
-                        .hoverEffect()
                         
                         if suggestion != searchVM.suggestions.last {
                             Divider()
