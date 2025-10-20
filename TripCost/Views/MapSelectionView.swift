@@ -29,7 +29,7 @@ struct MapSelectionView: View {
                     locationSelectionCard
                     Spacer()
 
-                    if locationViewModel.route != nil {
+                    if locationViewModel.startLocation != nil && locationViewModel.endLocation != nil {
                         actionButtons
                     }
                 }
@@ -132,6 +132,8 @@ struct MapSelectionView: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .disabled(locationViewModel.route == nil)
+            .opacity(locationViewModel.route == nil ? 0.6 : 1.0)
 
             Button {
                 // Bind route into calculator VM
@@ -158,6 +160,8 @@ struct MapSelectionView: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .disabled(locationViewModel.route == nil)
+            .opacity(locationViewModel.route == nil ? 0.6 : 1.0)
         }
         .transition(AnimationConstants.Transitions.scale)
         .animation(AnimationConstants.bouncy, value: locationViewModel.route != nil)
