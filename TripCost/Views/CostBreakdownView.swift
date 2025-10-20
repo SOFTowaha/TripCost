@@ -508,6 +508,20 @@ struct CurrencyPickerView: View {
         ("MXN", "Mexican Peso", "$")
     ]
     
+    // Map currency code to a representative region code for flag rendering
+    private let currencyRegionMap: [String: String] = [
+        "USD": "US",
+        "EUR": "EU",
+        "GBP": "GB",
+        "JPY": "JP",
+        "CAD": "CA",
+        "AUD": "AU",
+        "CHF": "CH",
+        "CNY": "CN",
+        "INR": "IN",
+        "MXN": "MX"
+    ]
+    
     private var filteredCurrencies: [(String, String, String)] {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !q.isEmpty else { return currencies }
@@ -532,16 +546,18 @@ struct CurrencyPickerView: View {
                                         .fill(selectedCurrency == code ? .blue.opacity(0.12) : .gray.opacity(0.12))
                                         .frame(width: 46, height: 46)
 
-                                    Text(symbol)
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(selectedCurrency == code ? .blue : .secondary)
+                                    Text(flagEmoji(for: currencyRegionMap[code] ?? "US"))
+                                        .font(.title2)
                                 }
 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(name)
                                         .font(.headline)
-                                    Text(code)
+                                    HStack(spacing: 6) {
+                                        Text(code)
+                                        Text(symbol)
+                                            .foregroundStyle(.secondary)
+                                    }
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -604,5 +620,16 @@ struct CurrencyPickerView: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
+    }
+
+    // MARK: - Flag Helpers
+    private func flagEmoji(for regionCode: String) -> String {
+        let upper = regionCode.uppercased()
+        var scalarView = String.UnicodeScalarView()
+        for u in upper.unicodeScalars {
+            guard let flagScalar = UnicodeScalar(127397 + Int(u.value)) else { continue }
+            scalarView.append(flagScalar)
+        }
+        return String(scalarView)
     }
 }
