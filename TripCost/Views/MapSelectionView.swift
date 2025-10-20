@@ -202,6 +202,7 @@ struct LocationInputRow: View {
         .buttonStyle(.plain)
     }
 }
+
 struct SearchBarOverlay: View {
     @Bindable var searchVM: SearchViewModel
     var onPick: (MKMapItem) -> Void

@@ -50,15 +50,14 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             MapSelectionView()
-                .tabItem { Label("Trip", systemImage: "map.fill") }.tag(0)
+                .tabItem { Label("Trip", systemImage: "map.fill") }
+                .tag(0)
             VehicleSelectionView()
-                .tabItem { Label("Vehicles", systemImage: "car.fill") }.tag(1)
-                .onTapGesture {
-                    vehicleVM.selectedVehicle = vehicle
-                    calcVM.selectedVehicle = vehicle
-                }
+                .tabItem { Label("Vehicles", systemImage: "car.fill") }
+                .tag(1)
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape.fill") }.tag(2)
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                .tag(2)
         }
     }
 }
