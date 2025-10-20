@@ -12,22 +12,41 @@ struct SettingsView: View {
     @State private var fuelPriceText = ""
     @State private var showCurrencyPicker = false
     
+    @State private var showSaved = false
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    unitsCard
-                    currencyCard
-                    fuelPricingCard
-                    aboutCard
+            ZStack(alignment: .top) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        unitsCard
+                        currencyCard
+                        fuelPricingCard
+                        aboutCard
+                    }
+                    .padding(24)
                 }
-                .padding(24)
+                .background(
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .ignoresSafeArea()
+                )
+                if showSaved {
+                    HStack {
+                        Spacer()
+                        Label("Saved", systemImage: "checkmark.circle.fill")
+                            .font(.title3)
+                            .padding(12)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .overlay(
+                                Capsule().stroke(Color.green.opacity(0.3), lineWidth: 1)
+                            )
+                            .shadow(color: .green.opacity(0.15), radius: 8, x: 0, y: 4)
+                        Spacer()
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
+                }
             }
-            .background(
-                Rectangle()
-                    .fill(.thinMaterial)
-                    .ignoresSafeArea()
-            )
             .navigationTitle("Settings")
             .onAppear {
                 fuelPriceText = String(format: "%.3f", calculatorViewModel.fuelPrice)
@@ -35,6 +54,17 @@ struct SettingsView: View {
             .sheet(isPresented: $showCurrencyPicker) {
                 CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
             }
+            .onChange(of: calculatorViewModel.useMetric) { _ in triggerSaved() }
+            .onChange(of: calculatorViewModel.currencyCode) { _ in triggerSaved() }
+            .onChange(of: calculatorViewModel.fuelPrice) { _ in triggerSaved() }
+            .onChange(of: calculatorViewModel.fuelPriceUnit) { _ in triggerSaved() }
+        }
+    }
+
+    private func triggerSaved() {
+        withAnimation { showSaved = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation { showSaved = false }
         }
     }
 }
