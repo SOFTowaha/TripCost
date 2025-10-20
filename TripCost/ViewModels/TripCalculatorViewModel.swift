@@ -19,7 +19,7 @@ class TripCalculatorViewModel {
     var additionalCosts: [AdditionalCost] = []
     var useMetric = false
     var numberOfPeople = 1
-    var currencyCode = "CAD" // New: Currency selection
+    var currency: Currency = .default // New: Currency selection
     
     func tripCost(vehicle: Vehicle?) -> TripCost? {
         guard let route = tripRoute else {
