@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct VehicleSelectionView: View {
-    @Bindable var viewModel: VehicleViewModel
+    @Environment(VehicleViewModel.self) private var viewModel
     @State private var showAddVehicle = false
     @State private var showEditVehicle: Vehicle?
 
