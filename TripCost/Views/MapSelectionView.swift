@@ -84,10 +84,9 @@ struct MapSelectionView: View {
                         title: "From",
                         searchVM: fromSearchVM,
                         onPick: { item in
-                            if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
-                                locationViewModel.setStartLocation(coord)
-                                locationViewModel.region.center = coord
-                            }
+                            let coord = item.placemark.coordinate
+                            locationViewModel.setStartLocation(coord)
+                            locationViewModel.region.center = coord
                             showFromSearch = false
                         }
                     )
@@ -97,10 +96,9 @@ struct MapSelectionView: View {
                         title: "To",
                         searchVM: toSearchVM,
                         onPick: { item in
-                            if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
-                                locationViewModel.setEndLocation(coord)
-                                locationViewModel.region.center = coord
-                            }
+                            let coord = item.placemark.coordinate
+                            locationViewModel.setEndLocation(coord)
+                            locationViewModel.region.center = coord
                             showToSearch = false
                         }
                     )
@@ -122,36 +120,37 @@ struct MapSelectionView: View {
         }
     }
 
-    // Replace 'mapView' computed var with:
     private var mapView: some View {
-        let handlePick: (MKMapItem) -> Void = { item in
-            if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
-                if isSelectingStart {
-                    locationViewModel.setStartLocation(coord)
-                } else {
-                    locationViewModel.setEndLocation(coord)
+        Map(
+            position: $cameraPosition,
+            bounds: MapCameraBounds(minimumDistance: 500, maximumDistance: 5_000_000)
+        ) {
+            // Show pins for selected start/end
+            if let start = locationViewModel.startLocation {
+                Annotation("Start", coordinate: start) {
+                    Image(systemName: "a.circle.fill").foregroundStyle(.green)
                 }
-                locationViewModel.region.center = coord
+            }
+            if let end = locationViewModel.endLocation {
+                Annotation("End", coordinate: end) {
+                    Image(systemName: "b.circle.fill").foregroundStyle(.red)
+                }
+            }
+
+            // Optionally draw route polyline if available
+            if let route = locationViewModel.route {
+                MapPolyline(route.polyline)
+                    .stroke(.blue, lineWidth: 4)
             }
         }
-        return ZStack(alignment: .topLeading) {
-            MapTapViewRepresentable(
-                region: $locationViewModel.region,
-                onTap: { coordinate in
-                    if isSelectingStart {
-                        locationViewModel.setStartLocation(coordinate)
-                    } else {
-                        locationViewModel.setEndLocation(coordinate)
-                    }
-                },
-                route: locationViewModel.route
-            )
-            SearchBarOverlay(
-                searchVM: searchVM,
-                onPick: handlePick
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
+        .onAppear {
+            // Keep camera centered on current region center
+            cameraPosition = .region(locationViewModel.region)
+        }
+        .onChange(of: locationViewModel.region.center) { _, newCenter in
+            var region = locationViewModel.region
+            region.center = newCenter
+            cameraPosition = .region(region)
         }
     }
 
@@ -159,17 +158,11 @@ struct MapSelectionView: View {
     private var locationSelectionCard: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Select Locations")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
+
                 // Clear/Reset button
                 if locationViewModel.startLocation != nil || locationViewModel.endLocation != nil {
                     Button {
                         locationViewModel.clearRoute()
-                        searchVM.query = "" // Clear search too
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.counterclockwise")
@@ -181,19 +174,16 @@ struct MapSelectionView: View {
                     .buttonStyle(.plain)
                 }
             }
-            
+
             Divider()
-            
+
             LocationInputRow(
                 icon: "a.circle.fill",
                 color: .green,
                 title: "Start Location",
                 address: locationViewModel.startAddress,
-                isSelected: isSelectingStart,
-                action: { 
-                    isSelectingStart = true
-                    searchVM.query = "" // Clear search when switching
-                }
+                isSelected: true,
+                action: { }
             )
 
             Divider()
@@ -203,11 +193,8 @@ struct MapSelectionView: View {
                 color: .red,
                 title: "End Location",
                 address: locationViewModel.endAddress,
-                isSelected: !isSelectingStart,
-                action: { 
-                    isSelectingStart = false
-                    searchVM.query = "" // Clear search when switching
-                }
+                isSelected: false,
+                action: { }
             )
 
             if locationViewModel.isLoadingRoute {
@@ -348,7 +335,7 @@ struct SearchBarOverlay: View {
                         }
 
                     // Use correct binding for isLoading
-                    if searchVM.isLoading == true {
+                    if searchVM.isLoading {
                         ProgressView()
                             .scaleEffect(0.7)
                             .padding(.trailing, 32)
@@ -372,7 +359,7 @@ struct SearchBarOverlay: View {
             // Results dropdown directly below search
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
                 VStack(spacing: 0) {
-                    ForEach(searchVM.suggestions, id: \ .self) { suggestion in
+                    ForEach(searchVM.suggestions, id: \.self) { suggestion in
                         Button {
                             Task {
                                 if let item = await searchVM.resolve(suggestion) {
