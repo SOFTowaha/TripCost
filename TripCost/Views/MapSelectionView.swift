@@ -266,6 +266,7 @@ struct SearchBarOverlay: View {
                     .textFieldStyle(.plain)
                     .font(.body)
                     .foregroundStyle(.primary) // Ensure text is visible
+                    .padding(.vertical, 2)
                     .onChange(of: searchVM.query) { _, newValue in
                         searchVM.updateQuery(newValue)
                     }
@@ -283,7 +284,11 @@ struct SearchBarOverlay: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
+                    .fill(Color(.textBackgroundColor)) // Use system background color for text
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
                     .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
             )
 
