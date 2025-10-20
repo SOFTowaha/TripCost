@@ -25,8 +25,27 @@ struct MapSelectionView: View {
             ZStack {
                 mapView
 
-                VStack {
+                VStack(spacing: 0) {
+                    // Search bar and results always grouped at top
+                    SearchBarOverlay(
+                        searchVM: searchVM,
+                        onPick: { item in
+                            if let coord = item.placemark.coordinate as CLLocationCoordinate2D? {
+                                if isSelectingStart {
+                                    locationViewModel.setStartLocation(coord)
+                                } else {
+                                    locationViewModel.setEndLocation(coord)
+                                }
+                                locationViewModel.region.center = coord
+                            }
+                        }
+                    )
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+
                     locationSelectionCard
+                        .padding(.top, 8)
+
                     Spacer()
 
                     if locationViewModel.startLocation != nil && locationViewModel.endLocation != nil {
@@ -37,7 +56,6 @@ struct MapSelectionView: View {
                 .padding()
             }
             .navigationTitle("Trip Calculator")
-//            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showRoutePreview) {
                 RoutePreviewView(
                     locationViewModel: locationViewModel,
@@ -258,92 +276,105 @@ struct SearchBarOverlay: View {
     var onPick: (MKMapItem) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Modern search field with white background
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
+            // macOS style search field
+            HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                    .font(.headline)
-                
-                TextField("Search for a place or address", text: $searchVM.query)
-                    .textFieldStyle(.plain)
-                    .font(.body)
-                    .padding(.vertical, 4)
-                    .onChange(of: searchVM.query) { _, newValue in
-                        searchVM.updateQuery(newValue)
+                    .font(.title2)
+
+                ZStack(alignment: .trailing) {
+                    TextField("Search for a place or address", text: $searchVM.query)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                        .padding(.vertical, 6)
+                        .background(Color(NSColor.controlBackgroundColor))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+                        )
+                        .onChange(of: searchVM.query) { _, newValue in
+                            searchVM.updateQuery(newValue)
+                        }
+
+                    // Use correct binding for isLoading
+                    if searchVM.isLoading == true {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .padding(.trailing, 32)
                     }
-                
-                if !searchVM.query.isEmpty {
-                    Button {
-                        searchVM.query = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+
+                    if !searchVM.query.isEmpty {
+                        Button {
+                            searchVM.query = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.trailing, 4)
                     }
-                    .buttonStyle(.plain)
                 }
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white) // White background for visibility
-                    .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 4)
-            )
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
 
             // Results dropdown directly below search
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(searchVM.suggestions, id: \.self) { suggestion in
-                            Button {
-                                Task {
-                                    if let item = await searchVM.resolve(suggestion) {
-                                        onPick(item)
-                                        searchVM.query = "" // Clear search after selection
+                VStack(spacing: 0) {
+                    ForEach(searchVM.suggestions, id: \ .self) { suggestion in
+                        Button {
+                            Task {
+                                if let item = await searchVM.resolve(suggestion) {
+                                    onPick(item)
+                                    searchVM.query = "" // Clear search after selection
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundStyle(Color.accentColor)
+                                    .font(.title3)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(suggestion.title)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundStyle(.primary)
+
+                                    if !suggestion.subtitle.isEmpty {
+                                        Text(suggestion.subtitle)
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "mappin.circle.fill")
-                                        .foregroundStyle(.blue)
-                                        .font(.title3)
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(suggestion.title)
-                                            .font(.subheadline)
-                                            .fontWeight(.medium)
-                                            .foregroundStyle(.primary)
-                                        
-                                        if !suggestion.subtitle.isEmpty {
-                                            Text(suggestion.subtitle)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .contentShape(Rectangle())
+                                Spacer()
                             }
-                            .buttonStyle(.plain)
-                            
-                            if suggestion != searchVM.suggestions.last {
-                                Divider()
-                                    .padding(.leading, 44)
-                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+
+                        if suggestion != searchVM.suggestions.last {
+                            Divider()
+                                .padding(.leading, 44)
                         }
                     }
                 }
-                .frame(maxHeight: 250)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.white) // White background for dropdown
-                        .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 4)
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(NSColor.windowBackgroundColor))
+                        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
                 )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+                )
+                .frame(maxWidth: 480, maxHeight: 220)
+                .padding(.horizontal, 16)
             }
         }
-        .frame(maxWidth: 500) // Limit width
+        .frame(maxWidth: 500)
     }
 }
