@@ -24,9 +24,14 @@ struct CostSplitView: View {
             .navigationTitle("Split Cost")
             // macOS: no navigationBarTitleDisplayMode
             .toolbar {
-                // macOS trailing-like action
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Done") { dismiss() }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark.circle.fill")
+                            .font(.title3)
+                    }
+                    .buttonStyle(.borderless)
                 }
             }
         }

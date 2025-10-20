@@ -216,7 +216,7 @@ struct SearchBarOverlay: View {
     var onPick: (MKMapItem) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             // Modern search field
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
@@ -242,49 +242,59 @@ struct SearchBarOverlay: View {
             }
             .padding(12)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
 
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(searchVM.suggestions, id: \.self) { suggestion in
-                        Button {
-                            Task {
-                                if let item = await searchVM.resolve(suggestion) {
-                                    onPick(item)
-                                    searchVM.query = "" // Clear search after selection
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(searchVM.suggestions, id: \.self) { suggestion in
+                            Button {
+                                Task {
+                                    if let item = await searchVM.resolve(suggestion) {
+                                        onPick(item)
+                                        searchVM.query = "" // Clear search after selection
+                                    }
                                 }
-                            }
-                        } label: {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(suggestion.title)
-                                    .font(.body)
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(.primary)
-                                
-                                if !suggestion.subtitle.isEmpty {
-                                    Text(suggestion.subtitle)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "mappin.circle.fill")
+                                        .foregroundStyle(.blue)
+                                        .font(.title3)
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(suggestion.title)
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundStyle(.primary)
+                                        
+                                        if !suggestion.subtitle.isEmpty {
+                                            Text(suggestion.subtitle)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    
+                                    Spacer()
                                 }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .contentShape(Rectangle())
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        
-                        if suggestion != searchVM.suggestions.last {
-                            Divider()
-                                .padding(.leading, 16)
+                            .buttonStyle(.plain)
+                            
+                            if suggestion != searchVM.suggestions.last {
+                                Divider()
+                                    .padding(.leading, 44)
+                            }
                         }
                     }
                 }
+                .frame(maxHeight: 200)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                 .padding(.top, 8)
-                .frame(maxHeight: 300)
             }
         }
+        .frame(maxWidth: 500) // Limit width
     }
 }
