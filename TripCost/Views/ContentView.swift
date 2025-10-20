@@ -53,6 +53,10 @@ struct ContentView: View {
                 .tabItem { Label("Trip", systemImage: "map.fill") }.tag(0)
             VehicleSelectionView()
                 .tabItem { Label("Vehicles", systemImage: "car.fill") }.tag(1)
+                .onTapGesture {
+                    vehicleVM.selectedVehicle = vehicle
+                    calcVM.selectedVehicle = vehicle
+                }
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }.tag(2)
         }
