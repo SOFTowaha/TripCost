@@ -169,7 +169,7 @@ extension AddCostView {
 // MARK: - Helpers
 extension AddCostView {
     private var currencySymbol: String {
-        let code = calculatorViewModel.currency.identifier
+        let code = $calculatorViewModel.currency.identifier
         // Try to find a locale that uses this currency code to get its symbol
         for id in Locale.availableIdentifiers {
             let locale = Locale(identifier: id)
