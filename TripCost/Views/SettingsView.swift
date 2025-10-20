@@ -94,7 +94,7 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Fuel Price")
                                     .font(.body)
-                                Text("Price per gallon")
+                                Text("Price per \(calculatorViewModel.useMetric ? "liter" : "gallon")")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -105,7 +105,7 @@ struct SettingsView: View {
                                 .font(.title3)
                                 .foregroundStyle(.secondary)
                             
-                            TextField("Price per gallon", text: $fuelPriceText)
+                            TextField("Price per \(calculatorViewModel.useMetric ? "liter" : "gallon")", text: $fuelPriceText)
                                 .textFieldStyle(.roundedBorder)
                                 .font(.body)
                                 .onChange(of: fuelPriceText) { _, newValue in
@@ -115,15 +115,34 @@ struct SettingsView: View {
                                 }
                         }
                         
-                        Text("Current: \(CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode))/gallon")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.leading, 52)
+                        HStack {
+                            Text("Current: \(CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode))/\(calculatorViewModel.useMetric ? "liter" : "gallon")")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                            
+                            // Quick conversion hint
+                            if !calculatorViewModel.useMetric {
+                                Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice * 3.78541, currencyCode: calculatorViewModel.currencyCode))/liter")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            } else {
+                                Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice / 3.78541, currencyCode: calculatorViewModel.currencyCode))/gallon")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                        .padding(.leading, 52)
                     }
                     .padding(.vertical, 4)
                 } header: {
                     Label("Fuel Pricing", systemImage: "fuelpump.fill")
                         .font(.headline)
+                } footer: {
+                    Text("Fuel price will be used to calculate trip costs. Price updates based on your selected unit system.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 // About Section
