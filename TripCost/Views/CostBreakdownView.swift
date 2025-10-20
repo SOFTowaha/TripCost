@@ -57,7 +57,7 @@ struct CostBreakdownView: View {
                         } label: {
                             HStack(spacing: 6) {
                                 Image(systemName: "dollarsign.circle.fill")
-                                Text(calculatorViewModel.currencyCode)
+                                Text(calculatorViewModel.currency.symbol)
                                     .fontWeight(.medium)
                             }
                             .padding(.horizontal, 12)
@@ -101,7 +101,7 @@ struct CostBreakdownView: View {
                 CostSplitView(calculatorViewModel: calculatorViewModel, vehicleViewModel: vehicleViewModel)
             }
             .sheet(isPresented: $showCurrencyPicker) {
-                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
+                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currency)
             }
         }
     }
@@ -218,7 +218,7 @@ struct CostBreakdownView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                     
-                    Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.totalCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
+                    Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.totalCost ?? 0, currencyCode: calculatorViewModel.currency.id))
                         .font(.system(size: 52, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
@@ -247,7 +247,7 @@ struct CostBreakdownView: View {
                     
                     Spacer()
                     
-                    Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(vehicle: vehicleViewModel.selectedVehicle), currencyCode: calculatorViewModel.currencyCode))
+                    Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(vehicle: vehicleViewModel.selectedVehicle), currencyCode: calculatorViewModel.currency.id))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(.primary)
@@ -282,7 +282,7 @@ struct CostBreakdownView: View {
                         .fontWeight(.bold)
                 }
                 Spacer()
-                Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.fuelCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
+                Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.fuelCost ?? 0, currencyCode: calculatorViewModel.currency.id))
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.green)
@@ -309,7 +309,7 @@ struct CostBreakdownView: View {
                     InfoRow(
                         icon: "dollarsign.circle.fill",
                         label: "Fuel Price",
-                        value: CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode) + "/" + calculatorViewModel.fuelPriceShortUnitLabel
+                        value: CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currency.id) + "/" + calculatorViewModel.fuelPriceShortUnitLabel
                     )
                 }
             }
@@ -339,7 +339,7 @@ struct CostBreakdownView: View {
                 
                 Text(CurrencyFormatter.format(
                     calculatorViewModel.additionalCosts.reduce(0) { $0 + $1.amount },
-                    currencyCode: calculatorViewModel.currencyCode
+                    currencyCode: calculatorViewModel.currency.id
                 ))
                     .font(.title2)
                     .fontWeight(.bold)
@@ -367,7 +367,7 @@ struct CostBreakdownView: View {
                 
                     VStack(spacing: 10) {
                     ForEach(calculatorViewModel.additionalCosts) { cost in
-                        AdditionalCostRow(cost: cost, currencyCode: calculatorViewModel.currencyCode) {
+                        AdditionalCostRow(cost: cost, currencyCode: calculatorViewModel.currency.id) {
                             withAnimation {
                                 calculatorViewModel.removeAdditionalCost(cost)
                             }
@@ -486,24 +486,14 @@ struct AdditionalCostRow: View {
 }
 
 // Currency Picker View
+import Foundation
 struct CurrencyPickerView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var selectedCurrency: String
+    @Binding var selectedCurrency: Currency
     @State private var query: String = ""
-    
-    let currencies = [
-        ("USD", "US Dollar", "$"),
-        ("EUR", "Euro", "€"),
-        ("GBP", "British Pound", "£"),
-        ("JPY", "Japanese Yen", "¥"),
-        ("CAD", "Canadian Dollar", "C$"),
-        ("AUD", "Australian Dollar", "A$"),
-        ("CHF", "Swiss Franc", "CHF"),
-        ("CNY", "Chinese Yuan", "¥"),
-        ("INR", "Indian Rupee", "₹"),
-        ("MXN", "Mexican Peso", "$")
-    ]
-    
+
+    let currencies: [Currency] = Currency.all
+
     // Map currency code to a representative region code for flag rendering
     private let currencyRegionMap: [String: String] = [
         "USD": "US",
@@ -517,12 +507,14 @@ struct CurrencyPickerView: View {
         "INR": "IN",
         "MXN": "MX"
     ]
-    
-    private var filteredCurrencies: [(String, String, String)] {
+
+    private var filteredCurrencies: [Currency] {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !q.isEmpty else { return currencies }
-        return currencies.filter { code, name, symbol in
-            code.lowercased().contains(q) || name.lowercased().contains(q) || symbol.lowercased().contains(q)
+        return currencies.filter { currency in
+            currency.id.lowercased().contains(q) ||
+            currency.name.lowercased().contains(q) ||
+            currency.symbol.lowercased().contains(q)
         }
     }
 
@@ -531,36 +523,32 @@ struct CurrencyPickerView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     searchBar
-                    ForEach(filteredCurrencies, id: \.0) { code, name, symbol in
+                    ForEach(filteredCurrencies, id: \ .id) { currency in
                         Button {
-                            selectedCurrency = code
+                            selectedCurrency = currency
                             dismiss()
                         } label: {
                             HStack(spacing: 16) {
                                 ZStack {
                                     Circle()
-                                        .fill(selectedCurrency == code ? .blue.opacity(0.12) : .gray.opacity(0.12))
+                                        .fill(selectedCurrency == currency ? .blue.opacity(0.12) : .gray.opacity(0.12))
                                         .frame(width: 46, height: 46)
-
-                                    Text(flagEmoji(for: currencyRegionMap[code] ?? "US"))
+                                    Text(flagEmoji(for: currencyRegionMap[currency.id] ?? "US"))
                                         .font(.title2)
                                 }
-
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(name)
+                                    Text(currency.name)
                                         .font(.headline)
                                     HStack(spacing: 6) {
-                                        Text(code)
-                                        Text(symbol)
+                                        Text(currency.id)
+                                        Text(currency.symbol)
                                             .foregroundStyle(.secondary)
                                     }
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                                 }
-
                                 Spacer()
-
-                                if selectedCurrency == code {
+                                if selectedCurrency == currency {
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.title3)
                                         .foregroundStyle(.blue)
