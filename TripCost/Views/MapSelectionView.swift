@@ -26,13 +26,62 @@ struct MapSelectionView: View {
                 mapView
 
                 VStack(spacing: 0) {
-                    // Apple Maps style search card
+                    // Unified card for 'From' and 'To' selection and search
                     VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                isSelectingStart = true
+                                searchVM.query = ""
+                            }) {
+                                HStack {
+                                    Image(systemName: "a.circle.fill")
+                                        .foregroundStyle(.green)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("From")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        Text(locationViewModel.startAddress.isEmpty ? "Choose starting point" : locationViewModel.startAddress)
+                                            .font(.body)
+                                            .foregroundStyle(isSelectingStart ? .primary : .secondary)
+                                    }
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(isSelectingStart ? Color(NSColor.selectedControlColor).opacity(0.08) : Color.clear)
+                                .cornerRadius(10)
+                            }
+                            Spacer(minLength: 12)
+                            Button(action: {
+                                isSelectingStart = false
+                                searchVM.query = ""
+                            }) {
+                                HStack {
+                                    Image(systemName: "b.circle.fill")
+                                        .foregroundStyle(.red)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("To")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        Text(locationViewModel.endAddress.isEmpty ? "Choose destination" : locationViewModel.endAddress)
+                                            .font(.body)
+                                            .foregroundStyle(!isSelectingStart ? .primary : .secondary)
+                                    }
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(!isSelectingStart ? Color(NSColor.selectedControlColor).opacity(0.08) : Color.clear)
+                                .cornerRadius(10)
+                            }
+                        }
+                        .padding(.horizontal, 18)
+                        .padding(.top, 18)
+
+                        // Single search bar
                         HStack(spacing: 10) {
                             Image(systemName: "magnifyingglass")
                                 .foregroundStyle(.secondary)
                                 .font(.title2)
-                            TextField("Search for a place or address", text: $searchVM.query)
+                            TextField(isSelectingStart ? "Search starting point" : "Search destination", text: $searchVM.query)
                                 .textFieldStyle(.plain)
                                 .font(.title3)
                                 .padding(.vertical, 8)
@@ -64,13 +113,13 @@ struct MapSelectionView: View {
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .stroke(Color(NSColor.separatorColor), lineWidth: 1)
                         )
-                        .padding(.top, 18)
-                        .padding(.horizontal, 32)
+                        .padding(.horizontal, 18)
+                        .padding(.bottom, 2)
 
-                        // Results dropdown
+                        // Single-column results
                         if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
                             VStack(spacing: 0) {
-                                ForEach(searchVM.suggestions, id: \.self) { suggestion in
+                                ForEach(searchVM.suggestions, id: \ .self) { suggestion in
                                     Button {
                                         Task {
                                             if let item = await searchVM.resolve(suggestion) {
@@ -123,13 +172,16 @@ struct MapSelectionView: View {
                                     .stroke(Color(NSColor.separatorColor), lineWidth: 1)
                             )
                             .frame(maxWidth: 600, maxHeight: 320)
-                            .padding(.horizontal, 32)
+                            .padding(.horizontal, 18)
                         }
                     }
-                    // End search card
-
-                    locationSelectionCard
-                        .padding(.top, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(Color(NSColor.windowBackgroundColor))
+                            .shadow(color: Color.black.opacity(0.18), radius: 18, x: 0, y: 8)
+                    )
+                    .padding(.top, 24)
+                    .padding(.horizontal, 32)
 
                     Spacer()
 
