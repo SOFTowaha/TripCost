@@ -54,10 +54,10 @@ struct SettingsView: View {
             .sheet(isPresented: $showCurrencyPicker) {
                 CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
             }
-            .onChange(of: calculatorViewModel.useMetric) { _ in triggerSaved() }
-            .onChange(of: calculatorViewModel.currencyCode) { _ in triggerSaved() }
-            .onChange(of: calculatorViewModel.fuelPrice) { _ in triggerSaved() }
-            .onChange(of: calculatorViewModel.fuelPriceUnit) { _ in triggerSaved() }
+            .onChange(of: calculatorViewModel.useMetric) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.currencyCode) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.fuelPrice) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.fuelPriceUnit) { _,_ in triggerSaved() }
         }
     }
 
@@ -243,7 +243,7 @@ extension SettingsView {
 extension SettingsView {
     private var currencySymbol: String {
         // Use the selected currency code to find a matching locale and symbol
-        let code = calculatorViewModel.currencyCode
+        let code = calculatorViewModel.currency.identifier
         for id in Locale.availableIdentifiers {
             let locale = Locale(identifier: id)
             if locale.currencyCode == code, let sym = locale.currencySymbol {
