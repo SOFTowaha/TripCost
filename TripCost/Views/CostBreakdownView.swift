@@ -71,7 +71,7 @@ struct CostBreakdownView: View {
                 AddCostView(calculatorViewModel: calculatorViewModel)
             }
             .sheet(isPresented: $showSplitView) {
-                CostSplitView(calculatorViewModel: calculatorViewModel)
+                CostSplitView(calculatorViewModel: calculatorViewModel, vehicleViewModel: vehicleViewModel)
             }
             .sheet(isPresented: $showCurrencyPicker) {
                 CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
