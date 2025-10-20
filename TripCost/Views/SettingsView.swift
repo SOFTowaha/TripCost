@@ -52,10 +52,10 @@ struct SettingsView: View {
                 fuelPriceText = String(format: "%.3f", calculatorViewModel.fuelPrice)
             }
             .sheet(isPresented: $showCurrencyPicker) {
-                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
+                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currency)
             }
             .onChange(of: calculatorViewModel.useMetric) { _,_ in triggerSaved() }
-            .onChange(of: calculatorViewModel.currencyCode) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.currency) { _,_ in triggerSaved() }
             .onChange(of: calculatorViewModel.fuelPrice) { _,_ in triggerSaved() }
             .onChange(of: calculatorViewModel.fuelPriceUnit) { _,_ in triggerSaved() }
         }
@@ -122,7 +122,7 @@ extension SettingsView {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Currency")
                             .font(.body)
-                        Text("Currently: \(calculatorViewModel.currencyCode)")
+                        Text("Currently: \(calculatorViewModel.currency.name) (\(calculatorViewModel.currency.symbol))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -178,7 +178,7 @@ extension SettingsView {
                 }
 
                 HStack {
-                    Text("Current: \(CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode))/\(calculatorViewModel.fuelPriceLongUnitLabel)")
+                    Text("Current: \(CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currency.id))/\(calculatorViewModel.fuelPriceLongUnitLabel)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -186,11 +186,11 @@ extension SettingsView {
 
                     // Quick conversion hint (show the alternate unit)
                     if calculatorViewModel.fuelPriceUnit == .perGallon {
-                        Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice / 3.78541, currencyCode: calculatorViewModel.currencyCode))/L")
+                        Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice / 3.78541, currencyCode: calculatorViewModel.currency.id))/L")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     } else {
-                        Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice * 3.78541, currencyCode: calculatorViewModel.currencyCode))/gal")
+                        Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice * 3.78541, currencyCode: calculatorViewModel.currency.id))/gal")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
@@ -242,14 +242,6 @@ extension SettingsView {
 // MARK: - Helpers
 extension SettingsView {
     private var currencySymbol: String {
-        // Use the selected currency code to find a matching locale and symbol
-        let code = calculatorViewModel.currency.identifier
-        for id in Locale.availableIdentifiers {
-            let locale = Locale(identifier: id)
-            if locale.currencyCode == code, let sym = locale.currencySymbol {
-                return sym
-            }
-        }
-        return "$"
+        calculatorViewModel.currency.symbol
     }
 }

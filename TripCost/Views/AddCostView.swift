@@ -169,15 +169,7 @@ extension AddCostView {
 // MARK: - Helpers
 extension AddCostView {
     private var currencySymbol: String {
-        let code = $calculatorViewModel.currency.identifier
-        // Try to find a locale that uses this currency code to get its symbol
-        for id in Locale.availableIdentifiers {
-            let locale = Locale(identifier: id)
-            if locale.currencyCode == code {
-                if let symbol = locale.currencySymbol { return symbol }
-            }
-        }
-        return code // Fallback to code if symbol not found
+        calculatorViewModel.currency.symbol
     }
     
     private func sanitizeAmountInput(_ input: String) -> String {

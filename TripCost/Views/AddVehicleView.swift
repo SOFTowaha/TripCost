@@ -28,7 +28,7 @@ struct AddVehicleView: View {
                     Button(action: saveVehicle) {
                         HStack(spacing: 10) {
                             Image(systemName: "plus.circle.fill")
-                                .foregroundStyle(.accent)
+                                .foregroundStyle(.blue)
                             Text("Add Vehicle")
                                 .fontWeight(.semibold)
                         }
@@ -37,7 +37,7 @@ struct AddVehicleView: View {
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color.accentColor.opacity(0.2), lineWidth: 1)
+                                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
