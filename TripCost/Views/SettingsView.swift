@@ -12,185 +12,236 @@ struct SettingsView: View {
     @State private var fuelPriceText = ""
     @State private var showCurrencyPicker = false
     
+    @State private var showSaved = false
     var body: some View {
         NavigationStack {
-            Form {
-                // Units Section
-                Section {
-                    Toggle(isOn: $calculatorViewModel.useMetric) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "ruler")
-                                .foregroundStyle(.blue)
-                                .font(.title3)
-                                .frame(width: 30)
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Metric System")
-                                    .font(.body)
-                                Text("Use kilometers instead of miles")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
+            ZStack(alignment: .top) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        unitsCard
+                        currencyCard
+                        fuelPricingCard
+                        aboutCard
                     }
-                    .toggleStyle(.switch)
-                } header: {
-                    Label("Units", systemImage: "ruler.fill")
-                        .font(.headline)
+                    .padding(24)
                 }
-                
-                // Currency Section
-                Section {
-                    Button {
-                        showCurrencyPicker = true
-                    } label: {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(.green.opacity(0.1))
-                                    .frame(width: 40, height: 40)
-                                
-                                Image(systemName: "dollarsign.circle.fill")
-                                    .foregroundStyle(.green)
-                                    .font(.title3)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Currency")
-                                    .font(.body)
-                                    .foregroundStyle(.primary)
-                                Text("Currently: \(calculatorViewModel.currencyCode)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.tertiary)
-                                .font(.caption)
-                        }
+                .background(
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .ignoresSafeArea()
+                )
+                if showSaved {
+                    HStack {
+                        Spacer()
+                        Label("Saved", systemImage: "checkmark.circle.fill")
+                            .font(.title3)
+                            .padding(12)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .overlay(
+                                Capsule().stroke(Color.green.opacity(0.3), lineWidth: 1)
+                            )
+                            .shadow(color: .green.opacity(0.15), radius: 8, x: 0, y: 4)
+                        Spacer()
                     }
-                    .buttonStyle(.plain)
-                } header: {
-                    Label("Currency", systemImage: "dollarsign.circle.fill")
-                        .font(.headline)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
                 }
+            }
+            .navigationTitle("Settings")
+            .onAppear {
+                fuelPriceText = String(format: "%.3f", calculatorViewModel.fuelPrice)
+            }
+            .sheet(isPresented: $showCurrencyPicker) {
+                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currency)
+            }
+            .onChange(of: calculatorViewModel.useMetric) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.currency) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.fuelPrice) { _,_ in triggerSaved() }
+            .onChange(of: calculatorViewModel.fuelPriceUnit) { _,_ in triggerSaved() }
+        }
+    }
 
-                // Fuel Pricing Section
-                Section {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(.orange.opacity(0.1))
-                                    .frame(width: 40, height: 40)
-                                
-                                Image(systemName: "fuelpump.fill")
-                                    .foregroundStyle(.orange)
-                                    .font(.title3)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Fuel Price")
-                                    .font(.body)
-                                Text("Price per \(calculatorViewModel.useMetric ? "liter" : "gallon")")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        
-                        HStack(spacing: 8) {
-                            Text(CurrencyFormatter.format(0, currencyCode: calculatorViewModel.currencyCode).prefix(1))
-                                .font(.title3)
-                                .foregroundStyle(.secondary)
-                            
-                            TextField("Price per \(calculatorViewModel.useMetric ? "liter" : "gallon")", text: $fuelPriceText)
-                                .textFieldStyle(.roundedBorder)
-                                .font(.body)
-                                .onChange(of: fuelPriceText) { _, newValue in
-                                    if let price = Double(newValue) {
-                                        calculatorViewModel.fuelPrice = price
-                                    }
-                                }
-                        }
-                        
-                        HStack {
-                            Text("Current: \(CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currencyCode))/\(calculatorViewModel.useMetric ? "liter" : "gallon")")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            
-                            Spacer()
-                            
-                            // Quick conversion hint
-                            if !calculatorViewModel.useMetric {
-                                Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice * 3.78541, currencyCode: calculatorViewModel.currencyCode))/liter")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
-                            } else {
-                                Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice / 3.78541, currencyCode: calculatorViewModel.currencyCode))/gallon")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
-                            }
-                        }
-                        .padding(.leading, 52)
-                    }
-                    .padding(.vertical, 4)
-                } header: {
-                    Label("Fuel Pricing", systemImage: "fuelpump.fill")
-                        .font(.headline)
-                } footer: {
-                    Text("Fuel price will be used to calculate trip costs. Price updates based on your selected unit system.")
+    private func triggerSaved() {
+        withAnimation { showSaved = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation { showSaved = false }
+        }
+    }
+}
+
+// MARK: - Subviews
+extension SettingsView {
+    private var unitsCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "ruler")
+                    .foregroundStyle(.blue)
+                Text("Units")
+                    .font(.headline)
+            }
+
+            Toggle(isOn: $calculatorViewModel.useMetric) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Metric System")
+                    Text("Use kilometers instead of miles")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
+            .toggleStyle(.switch)
+        }
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+    }
 
-                // About Section
-                Section {
-                    HStack(spacing: 12) {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundStyle(.purple)
-                            .font(.title3)
-                            .frame(width: 30)
-                        
-                        Text("Version")
+    private var currencyCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "dollarsign.circle.fill")
+                    .foregroundStyle(.green)
+                Text("Currency")
+                    .font(.headline)
+            }
+
+            Button {
+                showCurrencyPicker = true
+            } label: {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(.green.opacity(0.1))
+                            .frame(width: 40, height: 40)
+                        Image(systemName: "dollarsign.circle.fill")
+                            .foregroundStyle(.green)
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Currency")
                             .font(.body)
-                        
-                        Spacer()
-                        
-                        Text("1.0.0")
-                            .font(.body)
+                        Text("Currently: \(calculatorViewModel.currency.name) (\(calculatorViewModel.currency.symbol))")
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    
-                    HStack(spacing: 12) {
-                        Image(systemName: "hammer.fill")
-                            .foregroundStyle(.purple)
-                            .font(.title3)
-                            .frame(width: 30)
-                        
-                        Text("Build")
-                            .font(.body)
-                        
-                        Spacer()
-                        
-                        Text("2025.1")
-                            .font(.body)
-                            .foregroundStyle(.secondary)
+
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(.tertiary)
+                        .font(.caption)
+                }
+                .padding(12)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+    }
+
+    private var fuelPricingCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "fuelpump.fill")
+                    .foregroundStyle(.orange)
+                Text("Fuel Pricing")
+                    .font(.headline)
+            }
+
+            // Unit switcher (per gallon / per liter)
+            Picker("Unit", selection: $calculatorViewModel.fuelPriceUnit) {
+                Text("Per Gallon").tag(TripCalculatorViewModel.FuelPriceUnit.perGallon)
+                Text("Per Liter").tag(TripCalculatorViewModel.FuelPriceUnit.perLiter)
+            }
+            .pickerStyle(.segmented)
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Text(currencySymbol)
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+
+                    TextField("Price per \(calculatorViewModel.fuelPriceLongUnitLabel)", text: $fuelPriceText)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                        .onChange(of: fuelPriceText) { _, newValue in
+                            if let price = Double(newValue) {
+                                calculatorViewModel.fuelPrice = price
+                            }
+                        }
+                }
+
+                HStack {
+                    Text("Current: \(CurrencyFormatter.format(calculatorViewModel.fuelPrice, currencyCode: calculatorViewModel.currency.id))/\(calculatorViewModel.fuelPriceLongUnitLabel)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Spacer()
+
+                    // Quick conversion hint (show the alternate unit)
+                    if calculatorViewModel.fuelPriceUnit == .perGallon {
+                        Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice / 3.78541, currencyCode: calculatorViewModel.currency.id))/L")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    } else {
+                        Text("≈ \(CurrencyFormatter.format(calculatorViewModel.fuelPrice * 3.78541, currencyCode: calculatorViewModel.currency.id))/gal")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
-                } header: {
-                    Label("About", systemImage: "info.circle.fill")
-                        .font(.headline)
                 }
             }
-            .formStyle(.grouped)
-            .navigationTitle("Settings")
-            .onAppear {
-                fuelPriceText = String(format: "%.2f", calculatorViewModel.fuelPrice)
-            }
-            .sheet(isPresented: $showCurrencyPicker) {
-                CurrencyPickerView(selectedCurrency: $calculatorViewModel.currencyCode)
-            }
         }
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+    }
+
+    private var aboutCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "info.circle.fill")
+                    .foregroundStyle(.purple)
+                Text("About")
+                    .font(.headline)
+            }
+
+            HStack(spacing: 12) {
+                Text("Version")
+                Spacer()
+                Text("1.0.0").foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+
+            HStack(spacing: 12) {
+                Text("Build")
+                Spacer()
+                Text("2025.1").foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        }
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Helpers
+extension SettingsView {
+    private var currencySymbol: String {
+        calculatorViewModel.currency.symbol
     }
 }
