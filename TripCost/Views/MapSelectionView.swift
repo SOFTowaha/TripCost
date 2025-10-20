@@ -55,18 +55,20 @@ struct MapSelectionView: View {
 
     // Replace 'mapView' computed var with:
     private var mapView: some View {
-        MapTapViewRepresentable(
-            region: $locationViewModel.region,
-            onTap: { coordinate in
-                if isSelectingStart {
-                    locationViewModel.setStartLocation(coordinate)
-                } else {
-                    locationViewModel.setEndLocation(coordinate)
-                }
-            },
-            route: locationViewModel.route
-        )
-        .overlay(alignment: .top) {
+        ZStack(alignment: .topLeading) {
+            MapTapViewRepresentable(
+                region: $locationViewModel.region,
+                onTap: { coordinate in
+                    if isSelectingStart {
+                        locationViewModel.setStartLocation(coordinate)
+                    } else {
+                        locationViewModel.setEndLocation(coordinate)
+                    }
+                },
+                route: locationViewModel.route
+            )
+            
+            // Search overlay positioned at top-leading
             SearchBarOverlay(
                 searchVM: searchVM,
                 onPick: { item in
@@ -81,7 +83,8 @@ struct MapSelectionView: View {
                     }
                 }
             )
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
         }
     }
 
@@ -255,8 +258,8 @@ struct SearchBarOverlay: View {
     var onPick: (MKMapItem) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Modern search field
+        VStack(alignment: .leading, spacing: 8) {
+            // Modern search field with white background
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
@@ -265,8 +268,7 @@ struct SearchBarOverlay: View {
                 TextField("Search for a place or address", text: $searchVM.query)
                     .textFieldStyle(.plain)
                     .font(.body)
-                    .foregroundStyle(.primary) // Ensure text is visible
-                    .padding(.vertical, 2)
+                    .padding(.vertical, 4)
                     .onChange(of: searchVM.query) { _, newValue in
                         searchVM.updateQuery(newValue)
                     }
@@ -284,14 +286,11 @@ struct SearchBarOverlay: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.textBackgroundColor)) // Use system background color for text
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(Color.gray.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+                    .fill(Color.white) // White background for visibility
+                    .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 4)
             )
 
+            // Results dropdown directly below search
             if !searchVM.suggestions.isEmpty && !searchVM.query.isEmpty {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
@@ -327,7 +326,6 @@ struct SearchBarOverlay: View {
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)
                                 .contentShape(Rectangle())
-                                .background(Color.white.opacity(0.001)) // Ensure tappable area
                             }
                             .buttonStyle(.plain)
                             
@@ -341,13 +339,11 @@ struct SearchBarOverlay: View {
                 .frame(maxHeight: 250)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(.ultraThinMaterial)
-                        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+                        .fill(Color.white) // White background for dropdown
+                        .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 4)
                 )
-                .padding(.top, 8)
             }
         }
         .frame(maxWidth: 500) // Limit width
-        .frame(maxWidth: .infinity, alignment: .leading) // Align to leading edge
     }
 }
