@@ -115,6 +115,15 @@ struct CostBreakdownView: View {
                         Button {
                             withAnimation(.spring(response: 0.3)) {
                                 vehicleViewModel.selectedVehicle = vehicle
+                                print("✅ Vehicle selected in Cost Breakdown: \(vehicle.displayName)")
+                                print("   MPG: \(vehicle.combinedMPG)")
+                                print("   Fuel Type: \(vehicle.fuelType.rawValue)")
+                                
+                                // Force recalculation by accessing tripCost
+                                if let cost = calculatorViewModel.tripCost(vehicle: vehicle) {
+                                    print("   Calculated Fuel Cost: $\(cost.fuelCost)")
+                                    print("   Total Cost: $\(cost.totalCost)")
+                                }
                             }
                         } label: {
                             HStack(spacing: 16) {
@@ -182,7 +191,7 @@ struct CostBreakdownView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     
-                    Text(CurrencyFormatter.format(calculatorViewModel.tripCost?.totalCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
+                    Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.totalCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
                 }
@@ -204,7 +213,7 @@ struct CostBreakdownView: View {
                     
                     Spacer()
                     
-                    Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(), currencyCode: calculatorViewModel.currencyCode))
+                    Text(CurrencyFormatter.format(calculatorViewModel.totalCostPerPerson(vehicle: vehicleViewModel.selectedVehicle), currencyCode: calculatorViewModel.currencyCode))
                         .font(.title3)
                         .fontWeight(.semibold)
                 }
@@ -243,7 +252,7 @@ struct CostBreakdownView: View {
                 
                 Spacer()
                 
-                Text(CurrencyFormatter.format(calculatorViewModel.tripCost?.fuelCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
+                Text(CurrencyFormatter.format(calculatorViewModel.tripCost(vehicle: vehicleViewModel.selectedVehicle)?.fuelCost ?? 0, currencyCode: calculatorViewModel.currencyCode))
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundStyle(.green)
