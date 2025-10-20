@@ -49,13 +49,17 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            MapSelectionView()
+            MapSelectionView(
+                locationViewModel: locationVM,
+                calculatorViewModel: calcVM,
+                vehicleViewModel: vehicleVM
+            )
                 .tabItem { Label("Trip", systemImage: "map.fill") }
                 .tag(0)
             VehicleSelectionView()
                 .tabItem { Label("Vehicles", systemImage: "car.fill") }
                 .tag(1)
-            SettingsView()
+            SettingsView(calculatorViewModel: calcVM)
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(2)
         }
