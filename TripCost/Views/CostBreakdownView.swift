@@ -10,6 +10,7 @@ import SwiftUI
 struct CostBreakdownView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(SavedTripsViewModel.self) private var savedTripsVM
+    @Environment(LocationViewModel.self) private var locationViewModel
     @Bindable var calculatorViewModel: TripCalculatorViewModel
     @Bindable var vehicleViewModel: VehicleViewModel
     @State private var showAddCost = false
@@ -475,15 +476,38 @@ struct CostBreakdownView: View {
               let tripCost = calculatorViewModel.tripCost(vehicle: vehicle) else {
             return
         }
-        
+        // Get latest addresses from the environment LocationViewModel
+        let startAddress = locationViewModel.startAddress.isEmpty ? route.startAddress : locationViewModel.startAddress
+        let endAddress = locationViewModel.endAddress.isEmpty ? route.endAddress : locationViewModel.endAddress
+        // Create a new TripRoute with updated addresses
+        let updatedRoute = TripRoute(
+            id: route.id,
+            startLocation: route.startLocation,
+            endLocation: route.endLocation,
+            startAddress: startAddress,
+            endAddress: endAddress,
+            distance: route.distance,
+            expectedTravelTime: route.expectedTravelTime,
+            route: route.route
+        )
+        let autoName: String
+        if !startAddress.isEmpty && !endAddress.isEmpty {
+            autoName = "\(startAddress) → \(endAddress)"
+        } else if !endAddress.isEmpty {
+            autoName = "Trip to \(endAddress)"
+        } else {
+            autoName = "Trip on \(DateFormatter.localizedString(from: Date(), dateStyle: .medium, timeStyle: .none))"
+        }
         savedTripsVM.saveTrip(
-            name: tripName.isEmpty ? "Trip to \(route.endAddress)" : tripName,
-            route: route,
+            name: tripName.isEmpty ? autoName : tripName,
+            route: updatedRoute,
             vehicle: vehicle,
             cost: tripCost.totalCost,
             currency: calculatorViewModel.currency,
             additionalCosts: calculatorViewModel.additionalCosts,
-            notes: nil
+            notes: nil,
+            numberOfPeople: calculatorViewModel.numberOfPeople,
+            costPerPerson: calculatorViewModel.totalCostPerPerson(vehicle: vehicle)
         )
         tripName = ""
     }

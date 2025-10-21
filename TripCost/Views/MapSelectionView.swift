@@ -99,27 +99,26 @@ struct MapSelectionView: View {
                         title: "From",
                         searchVM: fromSearchVM,
                         onPick: { item in
-                            let coord: CLLocationCoordinate2D
-                            #if swift(>=5.10)
-                            if #available(macOS 26.0, *) {
-                                coord = item.location.coordinate
-                                locationViewModel.setStartLocation(coord, resetCalculation: {
-                                    calculatorViewModel.tripRoute = nil
-                                }, calculatorViewModel: calculatorViewModel)
-                            } else {
+                            Task {
+                                let coord: CLLocationCoordinate2D
+                                let name: String = item.name ?? item.placemark.title ?? "Start Location"
+                                #if swift(>=5.10)
+                                if #available(macOS 26.0, *) {
+                                    coord = item.location.coordinate
+                                } else {
+                                    coord = item.placemark.coordinate
+                                }
+                                #else
                                 coord = item.placemark.coordinate
-                                locationViewModel.setStartLocation(coord, resetCalculation: {
+                                #endif
+                                // Set address directly from picked item
+                                locationViewModel.startAddress = name
+                                await locationViewModel.setStartLocation(coord, resetCalculation: {
                                     calculatorViewModel.tripRoute = nil
                                 }, calculatorViewModel: calculatorViewModel)
+                                locationViewModel.region.center = coord
+                                showFromSearch = false
                             }
-                            #else
-                            coord = item.placemark.coordinate
-                            locationViewModel.setStartLocation(coord, resetCalculation: {
-                                calculatorViewModel.tripRoute = nil
-                            }, calculatorViewModel: calculatorViewModel)
-                            #endif
-                            locationViewModel.region.center = coord
-                            showFromSearch = false
                         }
                     )
                 }
@@ -128,27 +127,26 @@ struct MapSelectionView: View {
                         title: "To",
                         searchVM: toSearchVM,
                         onPick: { item in
-                            let coord: CLLocationCoordinate2D
-                            #if swift(>=5.10)
-                            if #available(macOS 26.0, *) {
-                                coord = item.location.coordinate
-                                locationViewModel.setEndLocation(coord, resetCalculation: {
-                                    calculatorViewModel.tripRoute = nil
-                                }, calculatorViewModel: calculatorViewModel)
-                            } else {
+                            Task {
+                                let coord: CLLocationCoordinate2D
+                                let name: String = item.name ?? item.placemark.title ?? "End Location"
+                                #if swift(>=5.10)
+                                if #available(macOS 26.0, *) {
+                                    coord = item.location.coordinate
+                                } else {
+                                    coord = item.placemark.coordinate
+                                }
+                                #else
                                 coord = item.placemark.coordinate
-                                locationViewModel.setEndLocation(coord, resetCalculation: {
+                                #endif
+                                // Set address directly from picked item
+                                locationViewModel.endAddress = name
+                                await locationViewModel.setEndLocation(coord, resetCalculation: {
                                     calculatorViewModel.tripRoute = nil
                                 }, calculatorViewModel: calculatorViewModel)
+                                locationViewModel.region.center = coord
+                                showToSearch = false
                             }
-                            #else
-                            coord = item.placemark.coordinate
-                            locationViewModel.setEndLocation(coord, resetCalculation: {
-                                calculatorViewModel.tripRoute = nil
-                            }, calculatorViewModel: calculatorViewModel)
-                            #endif
-                            locationViewModel.region.center = coord
-                            showToSearch = false
                         }
                     )
                 }

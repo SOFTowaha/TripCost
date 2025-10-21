@@ -49,16 +49,16 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
     func setStartLocation(_ coordinate: CLLocationCoordinate2D, resetCalculation: @escaping () -> Void = {}, calculatorViewModel: TripCalculatorViewModel? = nil) {
         startLocation = coordinate
         print("📍 Start location set: \(coordinate.latitude), \(coordinate.longitude)")
-        
         // Clear route when changing location
         route = nil
         resetCalculation()
-        
         Task {
-            await fetchAddress(for: coordinate, isStart: true)
-            // If end location already exists, calculate route
+            if startAddress.isEmpty {
+                await fetchAddress(for: coordinate, isStart: true)
+            }
+            // Wait for address to be set before calculating route
             if endLocation != nil {
-                print("🔄 Calculating route (start set after end)")
+                print("🔄 Calculating route (start set after end, after address fetch)")
                 await calculateRoute(calculatorViewModel: calculatorViewModel)
             }
         }
@@ -67,16 +67,16 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
     func setEndLocation(_ coordinate: CLLocationCoordinate2D, resetCalculation: @escaping () -> Void = {}, calculatorViewModel: TripCalculatorViewModel? = nil) {
         endLocation = coordinate
         print("📍 End location set: \(coordinate.latitude), \(coordinate.longitude)")
-        
         // Clear route when changing location
         route = nil
         resetCalculation()
-        
         Task {
-            await fetchAddress(for: coordinate, isStart: false)
-            // If start location already exists, calculate route
+            if endAddress.isEmpty {
+                await fetchAddress(for: coordinate, isStart: false)
+            }
+            // Wait for address to be set before calculating route
             if startLocation != nil {
-                print("🔄 Calculating route (end set after start)")
+                print("🔄 Calculating route (end set after start, after address fetch)")
                 await calculateRoute(calculatorViewModel: calculatorViewModel)
             }
         }
