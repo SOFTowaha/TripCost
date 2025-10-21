@@ -113,7 +113,7 @@ struct MapSelectionView: View {
                                 #endif
                                 // Set address directly from picked item
                                 locationViewModel.startAddress = name
-                                await locationViewModel.setStartLocation(coord, resetCalculation: {
+                                locationViewModel.setStartLocation(coord, resetCalculation: {
                                     calculatorViewModel.tripRoute = nil
                                 }, calculatorViewModel: calculatorViewModel)
                                 locationViewModel.region.center = coord
@@ -141,7 +141,7 @@ struct MapSelectionView: View {
                                 #endif
                                 // Set address directly from picked item
                                 locationViewModel.endAddress = name
-                                await locationViewModel.setEndLocation(coord, resetCalculation: {
+                                locationViewModel.setEndLocation(coord, resetCalculation: {
                                     calculatorViewModel.tripRoute = nil
                                 }, calculatorViewModel: calculatorViewModel)
                                 locationViewModel.region.center = coord
