@@ -7,11 +7,15 @@
 
 import Foundation
 
-struct AdditionalCost: Identifiable, Codable {
+struct AdditionalCost: Identifiable, Codable, Hashable {
     let id: UUID
     var category: Category
     var amount: Double
     var notes: String
+    
+    var name: String {
+        notes.isEmpty ? category.rawValue : notes
+    }
     
     enum Category: String, Codable, CaseIterable {
         case food = "Food"
