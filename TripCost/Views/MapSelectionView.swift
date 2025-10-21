@@ -99,11 +99,25 @@ struct MapSelectionView: View {
                         title: "From",
                         searchVM: fromSearchVM,
                         onPick: { item in
-                            let coord = item.location.coordinate
+                            let coord: CLLocationCoordinate2D
+                            #if swift(>=5.10)
+                            if #available(macOS 26.0, *) {
+                                coord = item.location.coordinate
+                                locationViewModel.setStartLocation(coord, resetCalculation: {
+                                    calculatorViewModel.tripRoute = nil
+                                }, calculatorViewModel: calculatorViewModel)
+                            } else {
+                                coord = item.placemark.coordinate
+                                locationViewModel.setStartLocation(coord, resetCalculation: {
+                                    calculatorViewModel.tripRoute = nil
+                                }, calculatorViewModel: calculatorViewModel)
+                            }
+                            #else
+                            coord = item.placemark.coordinate
                             locationViewModel.setStartLocation(coord, resetCalculation: {
-                                // Reset calculation when route changes
                                 calculatorViewModel.tripRoute = nil
                             }, calculatorViewModel: calculatorViewModel)
+                            #endif
                             locationViewModel.region.center = coord
                             showFromSearch = false
                         }
@@ -114,11 +128,25 @@ struct MapSelectionView: View {
                         title: "To",
                         searchVM: toSearchVM,
                         onPick: { item in
-                            let coord = item.location.coordinate
+                            let coord: CLLocationCoordinate2D
+                            #if swift(>=5.10)
+                            if #available(macOS 26.0, *) {
+                                coord = item.location.coordinate
+                                locationViewModel.setEndLocation(coord, resetCalculation: {
+                                    calculatorViewModel.tripRoute = nil
+                                }, calculatorViewModel: calculatorViewModel)
+                            } else {
+                                coord = item.placemark.coordinate
+                                locationViewModel.setEndLocation(coord, resetCalculation: {
+                                    calculatorViewModel.tripRoute = nil
+                                }, calculatorViewModel: calculatorViewModel)
+                            }
+                            #else
+                            coord = item.placemark.coordinate
                             locationViewModel.setEndLocation(coord, resetCalculation: {
-                                // Reset calculation when route changes
                                 calculatorViewModel.tripRoute = nil
                             }, calculatorViewModel: calculatorViewModel)
+                            #endif
                             locationViewModel.region.center = coord
                             showToSearch = false
                         }
