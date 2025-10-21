@@ -20,16 +20,20 @@ struct CostSplitView: View {
                 splitBreakdown
                 Spacer()
             }
-            .padding()
+            .padding(32)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 32, style: .continuous)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 2)
+            )
+            .shadow(color: .black.opacity(0.08), radius: 24, x: 0, y: 8)
             .navigationTitle("Split Cost")
-            // macOS: no navigationBarTitleDisplayMode
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         dismiss()
                     } label: {
-                        Label("Close", systemImage: "xmark.circle.fill")
-                            .font(.title3)
+                        Text("Close")
                     }
                     .buttonStyle(.borderless)
                 }

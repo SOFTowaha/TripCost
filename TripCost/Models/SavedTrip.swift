@@ -11,7 +11,8 @@ struct SavedTrip: Identifiable, Codable, Hashable {
     var currency: Currency
     var additionalCosts: [AdditionalCost]
     var notes: String?
-    
+    var numberOfPeople: Int
+    var costPerPerson: Double
     // For sharing
     var shareURL: URL? // Optional: for future deep-linking or export
     
@@ -24,6 +25,8 @@ struct SavedTrip: Identifiable, Codable, Hashable {
          currency: Currency,
          additionalCosts: [AdditionalCost] = [],
          notes: String? = nil,
+         numberOfPeople: Int = 1,
+         costPerPerson: Double = 0,
          shareURL: URL? = nil) {
         self.id = id
         self.name = name
@@ -34,6 +37,8 @@ struct SavedTrip: Identifiable, Codable, Hashable {
         self.currency = currency
         self.additionalCosts = additionalCosts
         self.notes = notes
+        self.numberOfPeople = numberOfPeople
+        self.costPerPerson = costPerPerson
         self.shareURL = shareURL
     }
 }
