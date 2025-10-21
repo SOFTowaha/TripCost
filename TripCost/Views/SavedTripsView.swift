@@ -94,7 +94,27 @@ struct SavedTripDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let trip: SavedTrip
     @State private var showShareSheet = false
-    
+    @State private var isEditing = false
+    @State private var editedPeople: Int = 1
+    @State private var editedCostPerPerson: Double = 0
+
+    var fuelCost: Double {
+        // Default values for fuel price and unit (customize if you want to persist these per trip)
+        let fuelPrice = 3.50
+        let fuelPriceUnit: String = "perGallon" // or "perLiter"
+        if trip.vehicle.fuelType == .electric { return 0 }
+        let distanceInMiles = trip.route.distanceInMiles()
+        let mpg = trip.vehicle.combinedMPG
+        let gallonsNeeded = distanceInMiles / mpg
+        let litersPerGallon = 3.78541
+        let cost: Double
+        if fuelPriceUnit == "perGallon" {
+            cost = gallonsNeeded * fuelPrice
+        } else {
+            cost = (gallonsNeeded * litersPerGallon) * fuelPrice
+        }
+        return cost
+    }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -103,19 +123,17 @@ struct SavedTripDetailView: View {
                     Text(trip.name)
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                    
                     Text(trip.date.formatted(date: .long, time: .shortened))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .padding(.horizontal)
-                
-                // Route Info
+
+                // Route Info (read-only)
                 GroupBox {
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Route Details", systemImage: "map")
                             .font(.headline)
-                        
                         Divider()
                         HStack {
                             Image(systemName: "a.circle.fill")
@@ -131,7 +149,6 @@ struct SavedTripDetailView: View {
                                 .font(.body)
                             Spacer()
                         }
-                        
                         HStack {
                             Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                                 .foregroundStyle(.blue)
@@ -139,7 +156,6 @@ struct SavedTripDetailView: View {
                                 .font(.body)
                             Spacer()
                         }
-                        
                         HStack {
                             Image(systemName: "clock")
                                 .foregroundStyle(.orange)
@@ -151,25 +167,21 @@ struct SavedTripDetailView: View {
                     .padding()
                 }
                 .padding(.horizontal)
-                
-                // Vehicle Info
+
+                // Vehicle Info (read-only)
                 GroupBox {
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Vehicle", systemImage: "car.fill")
                             .font(.headline)
-                        
                         Divider()
-                        
                         Text(trip.vehicle.displayName)
                             .font(.title3)
                             .fontWeight(.semibold)
-                        
                         HStack {
                             Text("Fuel Type:")
                                 .foregroundStyle(.secondary)
                             Text(trip.vehicle.fuelType.rawValue)
                         }
-                        
                         HStack {
                             Text("Combined MPG:")
                                 .foregroundStyle(.secondary)
@@ -179,13 +191,21 @@ struct SavedTripDetailView: View {
                     .padding()
                 }
                 .padding(.horizontal)
-                
-                // Cost Breakdown
+
+                // Cost Breakdown (editable split cost)
                 GroupBox {
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Cost Breakdown", systemImage: "dollarsign.circle")
                             .font(.headline)
                         Divider()
+                        HStack {
+                            Text("Fuel Cost")
+                                .font(.body)
+                            Spacer()
+                            Text("\(trip.currency.symbol)\(String(format: "%.2f", fuelCost))")
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                        }
                         HStack {
                             Text("Total Cost")
                                 .font(.title2)
@@ -196,7 +216,25 @@ struct SavedTripDetailView: View {
                                 .fontWeight(.bold)
                                 .foregroundStyle(.blue)
                         }
-                        if trip.numberOfPeople > 1 {
+                        if isEditing {
+                            HStack {
+                                Text("Split Among")
+                                    .font(.body)
+                                Spacer()
+                                Stepper(value: $editedPeople, in: 1...100, step: 1) {
+                                    Text("\(editedPeople) people")
+                                }
+                                .frame(width: 160)
+                            }
+                            HStack {
+                                Text("Per Person")
+                                    .font(.body)
+                                Spacer()
+                                Text("\(trip.currency.symbol)\(String(format: "%.2f", trip.cost / Double(editedPeople))) /person")
+                                    .font(.body)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } else if trip.numberOfPeople > 1 {
                             HStack {
                                 Text("Split Among")
                                     .font(.body)
@@ -224,18 +262,22 @@ struct SavedTripDetailView: View {
                         }
                     }
                     .padding()
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.10), radius: 8, x: 0, y: 4)
                 }
                 .padding(.horizontal)
-                
+
                 // Notes
                 if let notes = trip.notes, !notes.isEmpty {
                     GroupBox {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Notes", systemImage: "note.text")
                                 .font(.headline)
-                            
                             Divider()
-                            
                             Text(notes)
                                 .font(.body)
                         }
@@ -243,20 +285,38 @@ struct SavedTripDetailView: View {
                     }
                     .padding(.horizontal)
                 }
-                
+
                 // Actions
                 HStack(spacing: 16) {
-                    Button {
-                        showShareSheet = true
-                    } label: {
-                        Label("Share Trip", systemImage: "square.and.arrow.up")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(.blue, in: RoundedRectangle(cornerRadius: 12))
-                            .foregroundStyle(.white)
+                    if isEditing {
+                        Button {
+                            // Save changes
+                            var updatedTrip = trip
+                            updatedTrip.numberOfPeople = editedPeople
+                            updatedTrip.costPerPerson = trip.cost / Double(editedPeople)
+                            viewModel.updateTrip(updatedTrip)
+                            isEditing = false
+                        } label: {
+                            Label("Save", systemImage: "checkmark.circle")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(.green.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                                .foregroundStyle(.green)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button {
+                            isEditing = true
+                            editedPeople = trip.numberOfPeople
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                                .foregroundStyle(.primary)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    
                     Button(role: .destructive) {
                         viewModel.deleteTrip(trip)
                         dismiss()
