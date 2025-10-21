@@ -83,26 +83,22 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     private func fetchAddress(for coordinate: CLLocationCoordinate2D, isStart: Bool) async {
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        // Use MKLocalSearch to get place information
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = "location"
+        searchRequest.region = MKCoordinateRegion(
+            center: coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        )
+        searchRequest.resultTypes = .address
         
-        let request = MKReverseGeocodingRequest(coordinate: coordinate)
+        let search = MKLocalSearch(request: searchRequest)
         
         do {
-            let response = try await request.response()
+            let response = try await search.start()
             if let mapItem = response.mapItems.first {
-                // Use the formatted address from MapKit
-                let address: String
-                if let formattedAddress = mapItem.addressRepresentations?.first?.formatted {
-                    address = formattedAddress
-                } else {
-                    // Fallback to building address from components
-                    let components = [
-                        mapItem.name,
-                        mapItem.address?.locality,
-                        mapItem.address?.administrativeArea
-                    ]
-                    address = components.compactMap { $0 }.joined(separator: ", ")
-                }
+                // Use the name or placemark as address
+                let address = mapItem.name ?? "Selected Location"
                 
                 if isStart {
                     startAddress = address
@@ -112,6 +108,12 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
             }
         } catch {
             errorMessage = "Failed to fetch address: \(error.localizedDescription)"
+            // Set a fallback address
+            if isStart {
+                startAddress = "Start Location"
+            } else {
+                endAddress = "End Location"
+            }
         }
     }
     
@@ -122,8 +124,8 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         defer { isLoadingRoute = false }
         
         let request = MKDirections.Request()
-        request.source = MKMapItem(location: CLLocation(latitude: start.latitude, longitude: start.longitude))
-        request.destination = MKMapItem(location: CLLocation(latitude: end.latitude, longitude: end.longitude))
+        request.source = MKMapItem(location: CLLocation(latitude: start.latitude, longitude: start.longitude), address: nil)
+        request.destination = MKMapItem(location: CLLocation(latitude: end.latitude, longitude: end.longitude), address: nil)
         request.transportType = .automobile
         
         let directions = MKDirections(request: request)
