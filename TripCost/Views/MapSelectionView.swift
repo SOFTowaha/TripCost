@@ -100,17 +100,8 @@ struct MapSelectionView: View {
                         searchVM: fromSearchVM,
                         onPick: { item in
                             Task {
-                                let coord: CLLocationCoordinate2D
+                                let coord = item.placemark.coordinate
                                 let name: String = item.name ?? item.placemark.title ?? "Start Location"
-                                #if swift(>=5.10)
-                                if #available(macOS 26.0, *) {
-                                    coord = item.location.coordinate
-                                } else {
-                                    coord = item.placemark.coordinate
-                                }
-                                #else
-                                coord = item.placemark.coordinate
-                                #endif
                                 // Set address directly from picked item
                                 locationViewModel.startAddress = name
                                 locationViewModel.setStartLocation(coord, resetCalculation: {
@@ -128,17 +119,8 @@ struct MapSelectionView: View {
                         searchVM: toSearchVM,
                         onPick: { item in
                             Task {
-                                let coord: CLLocationCoordinate2D
+                                let coord = item.placemark.coordinate
                                 let name: String = item.name ?? item.placemark.title ?? "End Location"
-                                #if swift(>=5.10)
-                                if #available(macOS 26.0, *) {
-                                    coord = item.location.coordinate
-                                } else {
-                                    coord = item.placemark.coordinate
-                                }
-                                #else
-                                coord = item.placemark.coordinate
-                                #endif
                                 // Set address directly from picked item
                                 locationViewModel.endAddress = name
                                 locationViewModel.setEndLocation(coord, resetCalculation: {
