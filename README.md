@@ -108,6 +108,7 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 - [ ] Trip history with dates and locations
 - [ ] Favorite routes and destinations
 - [ ] Export trip data to PDF/CSV
+- [] Nearby attractions and Food
 
 ### 📝 Notes & Lists
 - [ ] Notes feature for trip planning
@@ -143,6 +144,8 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 
 ### 📱 Additional Features
 - [ ] Offline maps support
+- [ ] Weather Forecast
+- [ ] Image Upload/Save
 - [ ] GPS tracking during trips
 - [ ] Photo gallery per trip
 - [ ] Trip timeline/itinerary builder

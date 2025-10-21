@@ -100,10 +100,10 @@ struct MapSelectionView: View {
                         searchVM: fromSearchVM,
                         onPick: { item in
                             let coord = item.placemark.coordinate
-                            locationViewModel.setStartLocation(coord) {
+                            locationViewModel.setStartLocation(coord, resetCalculation: {
                                 // Reset calculation when route changes
                                 calculatorViewModel.tripRoute = nil
-                            }
+                            }, calculatorViewModel: calculatorViewModel)
                             locationViewModel.region.center = coord
                             showFromSearch = false
                         }
@@ -115,10 +115,10 @@ struct MapSelectionView: View {
                         searchVM: toSearchVM,
                         onPick: { item in
                             let coord = item.placemark.coordinate
-                            locationViewModel.setEndLocation(coord) {
+                            locationViewModel.setEndLocation(coord, resetCalculation: {
                                 // Reset calculation when route changes
                                 calculatorViewModel.tripRoute = nil
-                            }
+                            }, calculatorViewModel: calculatorViewModel)
                             locationViewModel.region.center = coord
                             showToSearch = false
                         }
