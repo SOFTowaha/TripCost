@@ -83,15 +83,26 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     private func fetchAddress(for coordinate: CLLocationCoordinate2D, isStart: Bool) async {
-        let geocoder = CLGeocoder()
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         
+        let request = MKReverseGeocodingRequest(coordinate: coordinate)
+        
         do {
-            let placemarks = try await geocoder.reverseGeocodeLocation(location)
-            if let placemark = placemarks.first {
-                let address = [placemark.name, placemark.locality, placemark.administrativeArea]
-                    .compactMap { $0 }
-                    .joined(separator: ", ")
+            let response = try await request.response()
+            if let mapItem = response.mapItems.first {
+                // Use the formatted address from MapKit
+                let address: String
+                if let formattedAddress = mapItem.addressRepresentations?.first?.formatted {
+                    address = formattedAddress
+                } else {
+                    // Fallback to building address from components
+                    let components = [
+                        mapItem.name,
+                        mapItem.address?.locality,
+                        mapItem.address?.administrativeArea
+                    ]
+                    address = components.compactMap { $0 }.joined(separator: ", ")
+                }
                 
                 if isStart {
                     startAddress = address
@@ -111,8 +122,8 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         defer { isLoadingRoute = false }
         
         let request = MKDirections.Request()
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: start))
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: end))
+        request.source = MKMapItem(location: CLLocation(latitude: start.latitude, longitude: start.longitude))
+        request.destination = MKMapItem(location: CLLocation(latitude: end.latitude, longitude: end.longitude))
         request.transportType = .automobile
         
         let directions = MKDirections(request: request)
