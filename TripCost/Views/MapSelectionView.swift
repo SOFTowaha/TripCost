@@ -99,7 +99,7 @@ struct MapSelectionView: View {
                         title: "From",
                         searchVM: fromSearchVM,
                         onPick: { item in
-                            let coord = item.location?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
+                            let coord = item.location.coordinate
                             locationViewModel.setStartLocation(coord, resetCalculation: {
                                 // Reset calculation when route changes
                                 calculatorViewModel.tripRoute = nil
@@ -114,7 +114,7 @@ struct MapSelectionView: View {
                         title: "To",
                         searchVM: toSearchVM,
                         onPick: { item in
-                            let coord = item.location?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
+                            let coord = item.location.coordinate
                             locationViewModel.setEndLocation(coord, resetCalculation: {
                                 // Reset calculation when route changes
                                 calculatorViewModel.tripRoute = nil
