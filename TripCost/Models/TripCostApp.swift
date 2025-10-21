@@ -13,6 +13,7 @@ struct TripCostApp: App {
     @State private var locationVM = LocationViewModel()
     @State private var vehicleVM = VehicleViewModel()
     @State private var calcVM = TripCalculatorViewModel()
+    @State private var savedTripsVM = SavedTripsViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -20,6 +21,7 @@ struct TripCostApp: App {
                 .environment(locationVM)
                 .environment(vehicleVM)
                 .environment(calcVM)
+                .environment(savedTripsVM)
         }
     }
 }
