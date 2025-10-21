@@ -74,35 +74,35 @@ jobs:
         echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
         echo "## TripCost ${{ github.ref_name }}" >> $GITHUB_OUTPUT
         echo "" >> $GITHUB_OUTPUT
-        echo "### 🎉 What's New in v1.1.0" >> $GITHUB_OUTPUT
-        echo "- 💾 **Saved Trips**: Save and manage your trip history with full details" >> $GITHUB_OUTPUT
-        echo "- ✏️ **Editable Trips**: Edit saved trips with live cost recalculation" >> $GITHUB_OUTPUT
-        echo "- 📍 **Smart Location Names**: Auto-capture place names from map" >> $GITHUB_OUTPUT
-        echo "- 📤 **Share Trips**: Share trip details with friends" >> $GITHUB_OUTPUT
-        echo "- 🎨 **Glass UI**: Beautiful frosted glass design throughout" >> $GITHUB_OUTPUT
-        echo "" >> $GITHUB_OUTPUT
-        echo "### Core Features" >> $GITHUB_OUTPUT
-        echo "- Interactive map-based trip planning" >> $GITHUB_OUTPUT
-        echo "- Fuel cost calculations" >> $GITHUB_OUTPUT
-        echo "- Cost splitting for multiple travelers" >> $GITHUB_OUTPUT
-        echo "- Vehicle management" >> $GITHUB_OUTPUT
-        echo "- Multi-currency support" >> $GITHUB_OUTPUT
+        echo "### 🎉 What's New" >> $GITHUB_OUTPUT
+        echo "- 💾 **Saved Trips**: Save and manage your trip history with full route details, costs, and vehicle info" >> $GITHUB_OUTPUT
+        echo "- ✏️ **Edit Saved Trips**: Modify number of people splitting costs with live cost-per-person updates" >> $GITHUB_OUTPUT
+        echo "- 📍 **Smart Location Names**: Automatically capture real place names from map selections" >> $GITHUB_OUTPUT
+        echo "- 📤 **Share Trips**: Share your saved trip details with friends" >> $GITHUB_OUTPUT
+        echo "- ⛽ **Fuel Cost Display**: View detailed fuel costs in saved trip summaries" >> $GITHUB_OUTPUT
+        echo "- 🏷️ **Auto Trip Names**: Trips automatically named as 'Start → Destination'" >> $GITHUB_OUTPUT
         echo "" >> $GITHUB_OUTPUT
         echo "### 🐛 Bug Fixes" >> $GITHUB_OUTPUT
-        echo "- Fixed MapKit coordinate handling" >> $GITHUB_OUTPUT
-        echo "- Universal binary support (Intel + Apple Silicon)" >> $GITHUB_OUTPUT
-        echo "- Improved address persistence" >> $GITHUB_OUTPUT
+        echo "- Fixed MapKit coordinate access for proper location handling" >> $GITHUB_OUTPUT
+        echo "- Fixed address persistence issues (no more disappearing location names)" >> $GITHUB_OUTPUT
+        echo "- Universal binary support for both Intel and Apple Silicon Macs" >> $GITHUB_OUTPUT
+        echo "- Resolved Swift 6 actor isolation warnings" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### ✨ Enhancements" >> $GITHUB_OUTPUT
+        echo "- Glass-themed UI for saved trip detail pages" >> $GITHUB_OUTPUT
+        echo "- Improved async/await handling for location services" >> $GITHUB_OUTPUT
+        echo "- Better type-checking performance" >> $GITHUB_OUTPUT
         echo "" >> $GITHUB_OUTPUT
         echo "### Installation" >> $GITHUB_OUTPUT
-        echo "1. Download the DMG or ZIP file" >> $GITHUB_OUTPUT
-        echo "2. Open the DMG and drag TripCost to Applications (or extract ZIP)" >> $GITHUB_OUTPUT
+        echo "1. Download the DMG or ZIP file below" >> $GITHUB_OUTPUT
+        echo "2. Open DMG and drag TripCost to Applications (or extract ZIP)" >> $GITHUB_OUTPUT
         echo "3. Launch TripCost from Applications" >> $GITHUB_OUTPUT
         echo "" >> $GITHUB_OUTPUT
         echo "### Requirements" >> $GITHUB_OUTPUT
         echo "- macOS 14.0 (Sonoma) or later" >> $GITHUB_OUTPUT
         echo "" >> $GITHUB_OUTPUT
-        echo "### Full Changelog" >> $GITHUB_OUTPUT
-        echo "See [CHANGELOG.md](https://github.com/SOFTowaha/TripCost/blob/main/CHANGELOG.md) for complete details" >> $GITHUB_OUTPUT
+        echo "### 📖 Full Changelog" >> $GITHUB_OUTPUT
+        echo "See [CHANGELOG.md](https://github.com/SOFTowaha/TripCost/blob/main/CHANGELOG.md) for complete version history" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
         
     - name: Create Release
