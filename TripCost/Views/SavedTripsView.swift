@@ -52,39 +52,37 @@ struct SavedTripRow: View {
                 Image(systemName: "mappin.and.ellipse")
                     .foregroundStyle(.blue)
                     .font(.title2)
-                
                 VStack(alignment: .leading, spacing: 4) {
                     Text(trip.name)
                         .font(.headline)
-                    
                     Text("\(trip.route.startAddress) → \(trip.route.endAddress)")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
-                
                 Spacer()
-                
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("\(trip.currency.symbol)\(String(format: "%.2f", trip.cost))")
                         .font(.title3)
                         .fontWeight(.semibold)
-                    
                     Text(trip.date.formatted(date: .abbreviated, time: .omitted))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             .padding(.vertical, 4)
-            
             HStack(spacing: 12) {
                 Label(trip.vehicle.displayName, systemImage: "car.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
                 Label("\(String(format: "%.1f", trip.route.distanceInMiles())) mi", systemImage: "point.topleft.down.to.point.bottomright.curvepath")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                if trip.numberOfPeople > 1 {
+                    Label("Split: \(trip.numberOfPeople) people, \(trip.currency.symbol)\(String(format: "%.2f", trip.costPerPerson))/person", systemImage: "person.3.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .padding(.vertical, 8)
@@ -119,19 +117,17 @@ struct SavedTripDetailView: View {
                             .font(.headline)
                         
                         Divider()
-                        
                         HStack {
                             Image(systemName: "a.circle.fill")
                                 .foregroundStyle(.green)
-                            Text(trip.route.startAddress)
+                            Text(trip.route.startAddress.isEmpty ? "Start Location" : trip.route.startAddress)
                                 .font(.body)
                             Spacer()
                         }
-                        
                         HStack {
                             Image(systemName: "b.circle.fill")
                                 .foregroundStyle(.red)
-                            Text(trip.route.endAddress)
+                            Text(trip.route.endAddress.isEmpty ? "End Location" : trip.route.endAddress)
                                 .font(.body)
                             Spacer()
                         }
@@ -189,9 +185,7 @@ struct SavedTripDetailView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Cost Breakdown", systemImage: "dollarsign.circle")
                             .font(.headline)
-                        
                         Divider()
-                        
                         HStack {
                             Text("Total Cost")
                                 .font(.title2)
@@ -202,13 +196,23 @@ struct SavedTripDetailView: View {
                                 .fontWeight(.bold)
                                 .foregroundStyle(.blue)
                         }
-                        
+                        if trip.numberOfPeople > 1 {
+                            HStack {
+                                Text("Split Among")
+                                    .font(.body)
+                                Spacer()
+                                Text("\(trip.numberOfPeople) people")
+                                    .font(.body)
+                                Text("\(trip.currency.symbol)\(String(format: "%.2f", trip.costPerPerson))/person")
+                                    .font(.body)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                         if !trip.additionalCosts.isEmpty {
                             Divider()
                             Text("Additional Costs")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
-                            
                             ForEach(trip.additionalCosts) { cost in
                                 HStack {
                                     Text(cost.name)
@@ -348,7 +352,10 @@ struct ShareTripView: View {
         let dateStr = trip.date.formatted(date: .long, time: .omitted)
         let distance = String(format: "%.1f", trip.route.distanceInMiles())
         let cost = String(format: "%.2f", trip.cost)
-        
+        var splitText = ""
+        if trip.numberOfPeople > 1 {
+            splitText = "👥 Split: \(trip.numberOfPeople) people, \(trip.currency.symbol)\(String(format: "%.2f", trip.costPerPerson))/person\n"
+        }
         return """
         🚗 \(trip.name)
         
@@ -357,7 +364,7 @@ struct ShareTripView: View {
         📏 Distance: \(distance) miles
         🚙 Vehicle: \(trip.vehicle.displayName)
         💰 Total Cost: \(trip.currency.symbol)\(cost)
-        
+        \(splitText)
         \(trip.notes ?? "")
         """
     }
