@@ -7,13 +7,16 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 
 ## Features
 
-✨ **Modern Glass UI** - Beautiful frosted glass design inspired by macOS Big Sur and later  
-🗺️ **Interactive Map** - Plan your trips with Apple Maps integration  
-⛽ **Fuel Cost Calculation** - Calculate trip costs based on vehicle fuel efficiency  
-🚗 **Vehicle Management** - Save and manage multiple vehicles  
-💰 **Cost Splitting** - Split costs among multiple travelers  
-💱 **Multi-Currency** - Support for multiple currencies  
-📊 **Detailed Breakdown** - View fuel costs and additional expenses  
+✨ **Modern Glass UI** - Beautiful frosted glass design inspired by macOS Big Sur and later *(Oct 2025)*  
+🗺️ **Interactive Map** - Plan your trips with Apple Maps integration *(Oct 2025)*  
+⛽ **Fuel Cost Calculation** - Calculate trip costs based on vehicle fuel efficiency *(Oct 2025)*  
+🚗 **Vehicle Management** - Save and manage multiple vehicles *(Oct 2025)*  
+💰 **Cost Splitting** - Split costs among multiple travelers *(Oct 2025)*  
+💱 **Multi-Currency** - Support for multiple currencies *(Oct 2025)*  
+📊 **Detailed Breakdown** - View fuel costs and additional expenses *(Oct 2025)*  
+💾 **Save & Manage Trips** - Save trips with routes, costs, and share with friends *(Oct 20, 2025)*  
+✏️ **Editable Saved Trips** - Edit split costs for saved trips with live calculations *(Oct 20, 2025)*  
+📍 **Location Tracking** - Auto-capture place names from map selections *(Oct 20, 2025)*  
 
 
 ## Requirements
@@ -104,8 +107,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 TripCost is evolving into a comprehensive trip planning tool for camping, hiking, and outdoor adventures. Here's what's coming:
 
 ### 🗺️ Trip Management
-- [ ] Save and manage multiple trips
-- [ ] Trip history with dates and locations
+- [x] Save and manage multiple trips *(Oct 20, 2025)*
+- [x] Trip history with dates and locations *(Oct 20, 2025)*
+- [x] Export trip data (Share functionality) *(Oct 20, 2025)*
 - [ ] Favorite routes and destinations
 - [ ] Export trip data to PDF/CSV
 - [ ] Nearby attractions and Food
@@ -124,7 +128,8 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 - [ ] Wildlife and safety alerts
 
 ### 🍽️ Trip Expenses
-- [ ] Food budget tracking
+- [x] Food budget tracking (Additional costs feature) *(Oct 20, 2025)*
+- [x] Per-person expense breakdown (Split cost feature) *(Oct 20, 2025)*
 - [ ] Camping gear costs
 - [ ] Park entrance fees
 - [ ] Equipment rental tracking
@@ -137,8 +142,8 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 - [ ] Shared gear tracking for group trips
 
 ### 👥 Group Trip Features
-- [ ] Shared trip planning
-- [ ] Group expense splitting
+- [x] Group expense splitting *(Oct 20, 2025)*
+- [x] Shared trip planning (Share functionality) *(Oct 20, 2025)*
 - [ ] Task assignments
 - [ ] Real-time trip updates
 
