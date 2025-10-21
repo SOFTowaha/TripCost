@@ -123,10 +123,12 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         isLoadingRoute = true
         defer { isLoadingRoute = false }
         
-        let request = MKDirections.Request()
-        request.source = MKMapItem(location: CLLocation(latitude: start.latitude, longitude: start.longitude), address: nil)
-        request.destination = MKMapItem(location: CLLocation(latitude: end.latitude, longitude: end.longitude), address: nil)
-        request.transportType = .automobile
+    let request = MKDirections.Request()
+    let startPlacemark = MKPlacemark(coordinate: start)
+    let endPlacemark = MKPlacemark(coordinate: end)
+    request.source = MKMapItem(placemark: startPlacemark)
+    request.destination = MKMapItem(placemark: endPlacemark)
+    request.transportType = .automobile
         
         let directions = MKDirections(request: request)
         
