@@ -44,6 +44,7 @@ struct ContentView: View {
     @Environment(LocationViewModel.self) private var locationVM
     @Environment(VehicleViewModel.self) private var vehicleVM
     @Environment(TripCalculatorViewModel.self) private var calcVM
+    @Environment(SavedTripsViewModel.self) private var savedTripsVM
 
     @State private var selectedTab = 0
 
@@ -59,9 +60,12 @@ struct ContentView: View {
             VehicleSelectionView()
                 .tabItem { Label("Vehicles", systemImage: "car.fill") }
                 .tag(1)
+            SavedTripsView()
+                .tabItem { Label("Saved", systemImage: "bookmark.fill") }
+                .tag(2)
             SettingsView(calculatorViewModel: calcVM)
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-                .tag(2)
+                .tag(3)
         }
     }
 }

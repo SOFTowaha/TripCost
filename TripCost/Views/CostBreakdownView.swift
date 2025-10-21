@@ -9,12 +9,15 @@ import SwiftUI
 
 struct CostBreakdownView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(SavedTripsViewModel.self) private var savedTripsVM
     @Bindable var calculatorViewModel: TripCalculatorViewModel
     @Bindable var vehicleViewModel: VehicleViewModel
     @State private var showAddCost = false
     @State private var showSplitView = false
     @State private var showCurrencyPicker = false
     @State private var showVehicleSelection = false
+    @State private var showSaveTripDialog = false
+    @State private var tripName = ""
 
     var body: some View {
         NavigationStack {
@@ -26,6 +29,7 @@ struct CostBreakdownView: View {
                         totalCostCard
                         fuelCostCard
                         additionalCostsSection
+                        actionButtonsRow
                         splitCostButton
                     }
                 }
@@ -42,13 +46,8 @@ struct CostBreakdownView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(.secondary)
-                            .padding(8)
-                            .background(.ultraThinMaterial, in: Circle())
+                        Text("Close")
                     }
-                    .buttonStyle(.plain)
                 }
                 
                 if vehicleViewModel.selectedVehicle != nil {
@@ -91,32 +90,19 @@ struct CostBreakdownView: View {
                         }
                         .buttonStyle(.plain)
                     }
-                    
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            showAddCost = true
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "plus.circle.fill")
-                                Text("Add Cost")
-                                    .fontWeight(.semibold)
-                            }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
-                            )
-                            .foregroundStyle(.blue)
-                            .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 4)
-                        }
-                        .buttonStyle(.plain)
-                    }
                 }
             }
             .sheet(isPresented: $showAddCost) {
                 AddCostView(calculatorViewModel: calculatorViewModel)
+            }
+            .alert("Save Trip", isPresented: $showSaveTripDialog) {
+                TextField("Trip Name", text: $tripName)
+                Button("Cancel", role: .cancel) { }
+                Button("Save") {
+                    saveTrip()
+                }
+            } message: {
+                Text("Enter a name for this trip to save it.")
             }
             .sheet(isPresented: $showSplitView) {
                 CostSplitView(calculatorViewModel: calculatorViewModel, vehicleViewModel: vehicleViewModel)
@@ -409,6 +395,54 @@ struct CostBreakdownView: View {
         )
         .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
     }
+    
+    private var actionButtonsRow: some View {
+        HStack(spacing: 16) {
+            Button {
+                showAddCost = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                    Text("Add Cost")
+                        .font(.body)
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
+                )
+                .foregroundStyle(.blue)
+                .shadow(color: .blue.opacity(0.25), radius: 12, x: 0, y: 6)
+            }
+            .buttonStyle(.plain)
+            
+            Button {
+                showSaveTripDialog = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "bookmark.fill")
+                        .font(.title3)
+                    Text("Save Trip")
+                        .font(.body)
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 1.5)
+                )
+                .foregroundStyle(.green)
+                .shadow(color: .green.opacity(0.25), radius: 12, x: 0, y: 6)
+            }
+            .buttonStyle(.plain)
+        }
+    }
 
     private var splitCostButton: some View {
         Button {
@@ -426,12 +460,32 @@ struct CostBreakdownView: View {
             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color.green.opacity(0.3), lineWidth: 1.5)
+                    .stroke(Color.orange.opacity(0.3), lineWidth: 1.5)
             )
-            .foregroundStyle(.green)
-            .shadow(color: .green.opacity(0.25), radius: 12, x: 0, y: 6)
+            .foregroundStyle(.orange)
+            .shadow(color: .orange.opacity(0.25), radius: 12, x: 0, y: 6)
         }
         .buttonStyle(.plain)
+    }
+    
+    // MARK: - Save Trip
+    private func saveTrip() {
+        guard let route = calculatorViewModel.tripRoute,
+              let vehicle = vehicleViewModel.selectedVehicle,
+              let tripCost = calculatorViewModel.tripCost(vehicle: vehicle) else {
+            return
+        }
+        
+        savedTripsVM.saveTrip(
+            name: tripName.isEmpty ? "Trip to \(route.endAddress)" : tripName,
+            route: route,
+            vehicle: vehicle,
+            cost: tripCost.totalCost,
+            currency: calculatorViewModel.currency,
+            additionalCosts: calculatorViewModel.additionalCosts,
+            notes: nil
+        )
+        tripName = ""
     }
 }
 
