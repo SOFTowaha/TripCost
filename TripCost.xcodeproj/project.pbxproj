@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4E8A368B2EA60EAD00F12559 /* MapTapViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8A368A2EA60EAB00F12559 /* MapTapViewRepresentable.swift */; };
 		4E8A368D2EA60EDA00F12559 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8A368C2EA60ED800F12559 /* SearchViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4E8A362C2EA6078D00F12559 /* TripCost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TripCost.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4E8A368A2EA60EAB00F12559 /* MapTapViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTapViewRepresentable.swift; sourceTree = "<group>"; };
 		4E8A368C2EA60ED800F12559 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -41,7 +39,6 @@
 			children = (
 				4E8A362E2EA6078D00F12559 /* TripCost */,
 				4E8A362D2EA6078D00F12559 /* Products */,
-				4E8A368A2EA60EAB00F12559 /* MapTapViewRepresentable.swift */,
 				4E8A368C2EA60ED800F12559 /* SearchViewModel.swift */,
 			);
 			sourceTree = "<group>";
@@ -128,7 +125,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E8A368B2EA60EAD00F12559 /* MapTapViewRepresentable.swift in Sources */,
 				4E8A368D2EA60EDA00F12559 /* SearchViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
