@@ -26,19 +26,19 @@ struct AddVehicleView: View {
                     vehicleInfoCard
                     mpgCard
                     Button(action: saveVehicle) {
-                        HStack(spacing: 10) {
+                        HStack(spacing: 12) {
                             Image(systemName: "plus.circle.fill")
                                 .foregroundStyle(.blue)
                             Text("Add Vehicle")
                                 .fontWeight(.light)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .padding(2)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
-                        )
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+//                                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
+//                        )
                     }
                     .buttonStyle(.plain)
                     .padding(.top, 10)

@@ -29,7 +29,7 @@ class ConfigurationManager {
 
         // 4) .env file (Debug builds only; helpful for local dev)
         #if DEBUG
-        if let envKey = readFromEnvFile() {
+        if let envKey = readFromEnvFile(varName: "OPENWEATHER_API_KEY") {
             return envKey
         }
         #endif
@@ -37,8 +37,35 @@ class ConfigurationManager {
         return nil
     }
     
+    /// Get API Ninjas key for vehicle data
+    /// Priority: 1) Keychain, 2) Environment variable, 3) Info.plist, 4) .env (Debug-only)
+    var vehicleAPIKey: String? {
+        // 1) Keychain
+        if let stored = KeychainService.shared.get("API_NINJAS_API_KEY"),
+           !stored.isEmpty, stored != "your_api_key_here" {
+            return stored
+        }
+        // 2) Environment variable
+        if let envVar = ProcessInfo.processInfo.environment["API_NINJAS_API_KEY"],
+           !envVar.isEmpty, envVar != "your_api_key_here" {
+            return envVar
+        }
+        // 3) Info.plist
+        if let plistKey = Bundle.main.object(forInfoDictionaryKey: "API_NINJAS_API_KEY") as? String,
+           !plistKey.isEmpty && plistKey != "$(API_NINJAS_API_KEY)" && plistKey != "your_api_key_here" {
+            return plistKey
+        }
+        // 4) .env (Debug only)
+        #if DEBUG
+        if let envKey = readFromEnvFile(varName: "API_NINJAS_API_KEY") {
+            return envKey
+        }
+        #endif
+        return nil
+    }
+    
     /// Read API key from .env file in project root
-    private func readFromEnvFile() -> String? {
+    private func readFromEnvFile(varName: String) -> String? {
         // Get project root (go up from app bundle)
         guard let projectRoot = findProjectRoot() else { return nil }
         
@@ -64,11 +91,11 @@ class ConfigurationManager {
                 // Parse KEY=value
                 let parts = trimmed.components(separatedBy: "=")
                 if parts.count >= 2,
-                   parts[0].trimmingCharacters(in: .whitespaces) == "OPENWEATHER_API_KEY" {
+                   parts[0].trimmingCharacters(in: .whitespaces) == varName {
                     let value = parts.dropFirst().joined(separator: "=").trimmingCharacters(in: .whitespaces)
                     if !value.isEmpty && value != "your_api_key_here" {
                         #if DEBUG
-                        print("✅ Loaded API key from .env file")
+                        print("✅ Loaded \(varName) from .env file")
                         #endif
                         return value
                     }

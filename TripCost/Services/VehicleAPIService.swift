@@ -9,7 +9,11 @@ import Foundation
 
 class VehicleAPIService {
     private let baseURL = "https://api.api-ninjas.com/v1/cars"
-    private let apiKey = REDACTED // Replace with actual API key
+    /// API Ninjas key loaded from configuration
+    /// Priority defined in `ConfigurationManager.vehicleAPIKey`
+    private var apiKey: String? {
+        ConfigurationManager.shared.vehicleAPIKey
+    }
     
     func fetchVehicles(make: String? = nil, model: String? = nil, year: Int? = nil) async throws -> [Vehicle] {
         var components = URLComponents(string: baseURL)!
@@ -28,8 +32,12 @@ class VehicleAPIService {
         
         components.queryItems = queryItems
         
-        var request = URLRequest(url: components.url!)
-        request.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
+        guard let url = components.url else { throw APIError.invalidResponse }
+        var request = URLRequest(url: url)
+        guard let key = apiKey, !key.isEmpty else {
+            throw APIError.missingAPIKey
+        }
+        request.setValue(key, forHTTPHeaderField: "X-Api-Key")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -45,6 +53,7 @@ class VehicleAPIService {
     enum APIError: Error {
         case invalidResponse
         case decodingError
+        case missingAPIKey
     }
 }
 
