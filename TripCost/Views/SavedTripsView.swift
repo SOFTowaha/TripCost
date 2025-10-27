@@ -19,7 +19,11 @@ struct SavedTripsView: View {
                             SavedTripDetailView(trip: trip)
                         } label: {
                             SavedTripRow(trip: trip)
+                                .padding(12)
+                                .modifier(GlassCardModifier(config: .init(cornerRadius: 14)))
                         }
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                     .onDelete { indexSet in
                         indexSet.forEach { index in
@@ -29,6 +33,7 @@ struct SavedTripsView: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .listStyle(.plain)
             .tcGlassBackground()
             .navigationTitle("Saved Trips")
             .toolbar {
@@ -38,7 +43,10 @@ struct SavedTripsView: View {
                         viewModel.loadTrips()
                     } label: {
                         Label("Refresh", systemImage: "arrow.clockwise")
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
                     }
+                    .buttonStyle(GlassButtonStyle())
                 }
             }
         }
