@@ -12,6 +12,7 @@ struct VehicleSelectionView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showAddVehicle = false
     @State private var showEditVehicle: Vehicle?
+    @State private var hoverAddVehicle = false
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -46,17 +47,19 @@ struct VehicleSelectionView: View {
             .navigationTitle("My Vehicles")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddVehicle = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Add Vehicle")
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                        Text("Add Vehicle")
+                            .fontWeight(.semibold)
                     }
-                    .buttonStyle(GlassButtonStyle())
+                    .foregroundStyle(.primary)
+                    .contentShape(Rectangle())
+                    .onTapGesture { showAddVehicle = true }
+                    .onHover { hover in hoverAddVehicle = hover }
+                    .opacity(hoverAddVehicle ? 0.85 : 1.0)
+                    .help("Add Vehicle")
+                    .accessibilityLabel("Add Vehicle")
+                    .accessibilityAddTraits(.isButton)
                 }
             }
             .sheet(isPresented: $showAddVehicle) {

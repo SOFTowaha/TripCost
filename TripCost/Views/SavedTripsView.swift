@@ -43,10 +43,11 @@ struct SavedTripsView: View {
                         viewModel.loadTrips()
                     } label: {
                         Label("Refresh", systemImage: "arrow.clockwise")
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
                     }
-                    .buttonStyle(GlassButtonStyle())
+//                    .labelStyle(.iconOnly)
+                    .controlSize(.small)
+//                    .buttonStyle(.borderless)
+                    .help("Refresh")
                 }
             }
         }

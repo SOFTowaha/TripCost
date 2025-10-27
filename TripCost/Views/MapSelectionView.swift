@@ -129,14 +129,12 @@ struct MapSelectionView: View {
                     Button {
                         resetAll()
                     } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.counterclockwise.circle.fill")
-                            Text("Reset")
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+                        Label("Reset", systemImage: "arrow.counterclockwise")
                     }
-                    .buttonStyle(GlassButtonStyle())
+                    .labelStyle(.titleAndIcon)
+                    .controlSize(.regular)
+                    .buttonStyle(.automatic)
+                    .help("Reset")
                     .disabled(locationViewModel.startLocation == nil && locationViewModel.endLocation == nil)
                     .opacity((locationViewModel.startLocation == nil && locationViewModel.endLocation == nil) ? 0.5 : 1.0)
                 }
