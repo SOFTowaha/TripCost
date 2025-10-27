@@ -19,6 +19,7 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 📍 **Location Tracking** - Auto-capture place names from map selections *(Oct 20, 2025)*  
 📋 **Camping Checklist** - Editable packing lists with templates for food, clothing, gear, and activities *(Oct 27, 2025)*
 ☀️ **Weather Forecasts** - Automatic weather fetching for trip destinations with current conditions *(Oct 27, 2025)*  
+🔐 **Secure API Key Storage** - Store your OpenWeatherMap API key securely in macOS Keychain via Settings *(Oct 27, 2025)*
 
 
 ## Requirements
@@ -48,6 +49,8 @@ A modern macOS trip cost calculator with beautiful glass UI design.
    cp .env.example .env
    # Edit .env and add your OpenWeatherMap API key
    ```
+   
+   **Alternative:** Configure API keys through the Settings page in the app (stored in Keychain) or via Xcode scheme environment variables. See [Configuration Guide](docs/CONFIGURATION.md) for all options.
 
 3. **Open in Xcode:**
    ```bash
@@ -80,7 +83,7 @@ Then build and run in Xcode (⌘R)
 2. **Choose Vehicle**: Select or add a vehicle with its fuel efficiency
 3. **Calculate Cost**: View detailed cost breakdown including fuel and additional expenses
 4. **Split Costs**: Divide the total cost among multiple travelers
-5. **Manage Settings**: Adjust currency, units, and fuel prices
+5. **Manage Settings**: Adjust currency, units, fuel prices, and configure weather API key securely
 
 ## Architecture
 

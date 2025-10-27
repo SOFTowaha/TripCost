@@ -7,40 +7,45 @@ class ConfigurationManager {
     private init() {}
     
     /// Get OpenWeatherMap API key from configuration
-    /// Priority: 1. .env file, 2. Info.plist, 3. Environment variable
+    /// Priority: 1) Keychain, 2) Environment variable, 3) Info.plist, 4) .env (Debug-only)
     var openWeatherAPIKey: String? {
-        // Try .env file first
+        // 1) Keychain (best for end-user runtime config)
+        if let stored = KeychainService.shared.get("OPENWEATHER_API_KEY"),
+           !stored.isEmpty, stored != "your_api_key_here" {
+            return stored
+        }
+        // 1) Environment variable (works well via Xcode scheme or CI)
+        if let envVar = ProcessInfo.processInfo.environment["OPENWEATHER_API_KEY"],
+           !envVar.isEmpty,
+           envVar != "your_api_key_here" {
+            return envVar
+        }
+
+        // 3) Info.plist (set via build settings or xcconfig)
+        if let plistKey = Bundle.main.object(forInfoDictionaryKey: "OPENWEATHER_API_KEY") as? String,
+           !plistKey.isEmpty && plistKey != "$(OPENWEATHER_API_KEY)" && plistKey != "your_api_key_here" {
+            return plistKey
+        }
+
+        // 4) .env file (Debug builds only; helpful for local dev)
+        #if DEBUG
         if let envKey = readFromEnvFile() {
             return envKey
         }
-        
-        // Try Info.plist
-        if let plistKey = Bundle.main.object(forInfoDictionaryKey: "OPENWEATHER_API_KEY") as? String,
-           !plistKey.isEmpty && plistKey != "$(OPENWEATHER_API_KEY)" {
-            return plistKey
-        }
-        
-        // Try environment variable (for CI/CD)
-        if let envVar = ProcessInfo.processInfo.environment["OPENWEATHER_API_KEY"],
-           !envVar.isEmpty {
-            return envVar
-        }
-        
+        #endif
+
         return nil
     }
     
     /// Read API key from .env file in project root
     private func readFromEnvFile() -> String? {
         // Get project root (go up from app bundle)
-        guard let projectRoot = findProjectRoot() else {
-            print("⚠️ Could not find project root")
-            return nil
-        }
+        guard let projectRoot = findProjectRoot() else { return nil }
         
         let envPath = projectRoot.appendingPathComponent(".env")
         
         guard FileManager.default.fileExists(atPath: envPath.path) else {
-            print("ℹ️ No .env file found at: \(envPath.path)")
+            // No .env in this environment (that's okay)
             return nil
         }
         
@@ -62,13 +67,17 @@ class ConfigurationManager {
                    parts[0].trimmingCharacters(in: .whitespaces) == "OPENWEATHER_API_KEY" {
                     let value = parts.dropFirst().joined(separator: "=").trimmingCharacters(in: .whitespaces)
                     if !value.isEmpty && value != "your_api_key_here" {
+                        #if DEBUG
                         print("✅ Loaded API key from .env file")
+                        #endif
                         return value
                     }
                 }
             }
         } catch {
+            #if DEBUG
             print("⚠️ Error reading .env file: \(error)")
+            #endif
         }
         
         return nil
@@ -76,8 +85,8 @@ class ConfigurationManager {
     
     /// Find project root directory by walking up from bundle
     private func findProjectRoot() -> URL? {
-        // In development, Bundle.main.bundleURL points to DerivedData
-        // Walk up to find .git or TripCost.xcodeproj
+        // In development, Bundle.main.bundleURL points to DerivedData.
+        // Walk up a few levels to find project markers (Debug only use-case).
         var current = Bundle.main.bundleURL
         
         // Try up to 10 levels

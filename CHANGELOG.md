@@ -11,18 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated OpenWeather API key handling to `.env` (git-ignored)
 - Removed leaked key from repo history using git-filter-repo
 - Updated `.env.example` and docs to use placeholders
+- **Keychain Storage**: Added secure API key storage via macOS Keychain with UI in Settings
 
 ### ✨ Enhanced
+- **Weather API Configuration UI**: New Settings section to manage OpenWeatherMap API key with show/hide, save to Keychain, and remove functionality
 - Weather card in Route Preview shows a loading state and clear fallback when unavailable
-- Config system via `ConfigurationManager` with .env, Info.plist, and env var priority
+- Config system via `ConfigurationManager` with multiple priority levels: Keychain → Environment variable → Info.plist → .env (Debug only)
+- Added app sandbox entitlements with network client access for weather API
 
 ### 🐛 Fixed
 - Resolved a merge conflict artifact and cleaned Xcode user state from version control
 - Build reliability in terminal by avoiding Anaconda linker conflicts (documented clean PATH usage)
+- Debug-only logging for API key warnings to avoid console spam in Release builds
 
 ### 📝 Documentation
 - Added `docs/CONFIGURATION.md` and updated `docs/WEATHER_SETUP.md`
 - Added `docs/ENV_MIGRATION.md` detailing the move to environment-based secrets
+- Updated README with Keychain-based API key management feature
+
+### 🔧 Technical
+- Implemented `KeychainService` utility for secure credential storage
+- Updated `ConfigurationManager` priority system for API key resolution
+- Project now includes `TripCost.entitlements` with sandbox and network permissions
 
 ## [1.1.1] - 2025-10-27
 

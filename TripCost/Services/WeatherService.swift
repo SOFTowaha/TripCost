@@ -15,12 +15,14 @@ class WeatherService {
     }
     
     private init() {
-        // Validate API key is configured
+        // Validate API key is configured (Debug logging only)
+        #if DEBUG
         if apiKey == nil {
             print("⚠️ WARNING: OpenWeatherMap API key not configured!")
-            print("ℹ️ Create a .env file with OPENWEATHER_API_KEY=your_key")
-            print("ℹ️ See .env.example for template")
+            print("ℹ️ Set OPENWEATHER_API_KEY in the Xcode scheme Environment Variables or Info.plist")
+            print("ℹ️ Optionally use a .env file in Debug (see .env.example)")
         }
+        #endif
     }
     
     /// Fetch current weather for given coordinates
