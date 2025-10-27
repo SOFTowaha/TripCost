@@ -350,6 +350,16 @@ struct SavedTripDetailView: View {
 
                 // Actions
                 HStack(spacing: 16) {
+                    Button {
+                        showShareSheet = true
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.blue.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                            .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
                     if isEditing {
                         Button {
                             // Save changes
@@ -437,11 +447,14 @@ struct ShareTripView: View {
                     Text("Trip Summary")
                         .font(.headline)
                     
-                    Text(generateShareText())
-                        .font(.body)
-                        .textSelection(.enabled)
-                        .padding()
-                        .background(.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+                    ScrollView {
+                        Text(generateShareText())
+                            .font(.body)
+                            .textSelection(.enabled)
+                            .padding()
+                            .background(.gray.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                    }
+                    .frame(maxHeight: 260)
                 }
                 .padding(.horizontal)
                 
@@ -457,7 +470,19 @@ struct ShareTripView: View {
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal)
+                
+                #if os(macOS)
+                if #available(macOS 13.0, *) {
+                    ShareLink(item: generateShareText()) {
+                        Label("Share…", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
+                }
+                #endif
             }
             .padding()
             .toolbar {
