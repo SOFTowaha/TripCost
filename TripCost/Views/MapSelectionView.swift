@@ -28,7 +28,8 @@ struct MapSelectionView: View {
                 mapView
 
                 VStack(spacing: 0) {
-                    // Side-by-side 'From' and 'To' cards with glass design
+                    Spacer()
+                    // Side-by-side 'From' and 'To' cards with glass design (centered)
                     HStack(spacing: 16) {
                         Button(action: { showFromSearch = true }) {
                             HStack(spacing: 12) {
@@ -74,9 +75,7 @@ struct MapSelectionView: View {
                         }
                         .buttonStyle(.plain)
                     }
-                    .padding(.top, 24)
                     .padding(.horizontal, 32)
-
                     Spacer()
 
                     if locationViewModel.startLocation != nil && locationViewModel.endLocation != nil {
