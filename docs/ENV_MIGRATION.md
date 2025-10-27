@@ -5,7 +5,7 @@
 ### ✅ Security Improvements
 
 **Before:**
-- API key hardcoded in `WeatherService.swift`: `"REDACTED"`
+- API key hardcoded in `WeatherService.swift`: `"xxxxxxxx"`
 - Keys visible in source code and git history
 - Risk of exposing secrets in public repositories
 
@@ -18,7 +18,7 @@
 
 1. **`.env`** - Your actual API key (git-ignored)
    ```
-   OPENWEATHER_API_KEY=REDACTED
+   OPENWEATHER_API_KEY=your_actual_api_key_here
    ```
 
 2. **`.env.example`** - Template for contributors (tracked in git)
@@ -161,9 +161,6 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/TripCost-*
 
 ## Note on Current .env
 
-Your current API key has been migrated from the code to `.env`:
-```
-OPENWEATHER_API_KEY=REDACTED
-```
+Your current API key has been migrated from the code to `.env`.
 
-This is YOUR key that was previously hardcoded. The app will now load it from `.env` instead of the source code.
+Important: Since the key was previously committed, you should rotate it in the OpenWeatherMap dashboard and update your `.env` with the new value.
