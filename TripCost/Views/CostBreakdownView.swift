@@ -506,6 +506,7 @@ struct CostBreakdownView: View {
             currency: calculatorViewModel.currency,
             additionalCosts: calculatorViewModel.additionalCosts,
             notes: nil,
+            destinationWeather: locationViewModel.destinationWeather,
             numberOfPeople: calculatorViewModel.numberOfPeople,
             costPerPerson: calculatorViewModel.totalCostPerPerson(vehicle: vehicle)
         )

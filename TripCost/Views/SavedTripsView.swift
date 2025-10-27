@@ -292,6 +292,56 @@ struct SavedTripDetailView: View {
                     }
                     .padding(.horizontal)
                 }
+                
+                // Weather
+                if let weather = trip.destinationWeather {
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("Destination Weather", systemImage: "cloud.sun.fill")
+                                .font(.headline)
+                            Divider()
+                            HStack(spacing: 24) {
+                                // Temperature & icon
+                                HStack(spacing: 16) {
+                                    Image(systemName: weather.sfSymbol)
+                                        .font(.system(size: 48))
+                                        .foregroundStyle(.cyan)
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("\(Int(weather.temperatureInFahrenheit))°F")
+                                            .font(.system(size: 32, weight: .bold))
+                                        Text("\(Int(weather.temperature))°C")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                // Condition details
+                                VStack(alignment: .trailing, spacing: 8) {
+                                    Text(weather.condition)
+                                        .font(.headline)
+                                    Text(weather.description.capitalized)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                    
+                                    if let humidity = weather.humidity {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "humidity.fill")
+                                                .font(.caption)
+                                            Text("\(humidity)%")
+                                                .font(.caption)
+                                        }
+                                        .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+                    .padding(.horizontal)
+                }
 
                 // Camping Checklist summary + link
                 GroupBox {
@@ -511,6 +561,13 @@ struct ShareTripView: View {
             }.joined(separator: "\n")
             checklistBlock = "\n🧭 Camping Checklist\n\(rendered)\n"
         }
+        var weatherBlock = ""
+        if let weather = trip.destinationWeather {
+            weatherBlock = "\n☀️ Weather at Destination\n🌡️ \(Int(weather.temperatureInFahrenheit))°F (\(Int(weather.temperature))°C)\n\(weather.condition) - \(weather.description.capitalized)\n"
+            if let humidity = weather.humidity {
+                weatherBlock += "💧 Humidity: \(humidity)%\n"
+            }
+        }
         return """
         🚗 \(trip.name)
         
@@ -519,9 +576,9 @@ struct ShareTripView: View {
         📏 Distance: \(distance) miles
         🚙 Vehicle: \(trip.vehicle.displayName)
         💰 Total Cost: \(trip.currency.symbol)\(cost)
-        \n\(splitText)
+        \(splitText)
         \(trip.notes ?? "")
-        \(checklistBlock)
+        \(weatherBlock)\(checklistBlock)
         """
     }
     

@@ -25,8 +25,11 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
     var route: MKRoute?
     var isLoadingRoute = false
     var errorMessage: String?
+    var destinationWeather: WeatherData?
+    var isLoadingWeather = false
     
     private let locationManager = CLLocationManager()
+    private let weatherService = WeatherService.shared
     
     override init() {
         super.init()
@@ -155,6 +158,29 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
             errorMessage = "Failed to calculate route: \(error.localizedDescription)"
             print("❌ Route calculation failed: \(error.localizedDescription)")
         }
+        
+        // Fetch weather for destination
+        await fetchWeatherForDestination()
+    }
+    
+    func fetchWeatherForDestination() async {
+        guard let end = endLocation else { 
+            print("⚠️ No destination location to fetch weather for")
+            return 
+        }
+        
+        isLoadingWeather = true
+        defer { isLoadingWeather = false }
+        
+        print("🌤️ Fetching weather for destination: \(end.latitude), \(end.longitude)")
+        
+        do {
+            destinationWeather = try await weatherService.fetchWeather(for: end)
+            print("✅ Weather fetched successfully: \(destinationWeather?.temperature ?? 0)°C, \(destinationWeather?.condition ?? "")")
+        } catch {
+            print("⚠️ Failed to fetch weather: \(error.localizedDescription)")
+            // Don't show error to user, weather is optional
+        }
     }
     
     func clearRoute() {
@@ -163,6 +189,7 @@ class LocationViewModel: NSObject, CLLocationManagerDelegate {
         startAddress = ""
         endAddress = ""
         route = nil
+        destinationWeather = nil
         errorMessage = nil
     }
 }
