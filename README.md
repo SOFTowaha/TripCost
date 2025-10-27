@@ -158,6 +158,27 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 
 Want to suggest a feature? [Open an issue](https://github.com/SOFTowaha/TripCost/issues) or contribute!
 
+## Roadmap & Kanban
+
+- Roadmap timeline and sprints: see [`docs/ROADMAP.md`](./docs/ROADMAP.md)
+- Project Kanban (GitHub Projects): create and view "TripCost Roadmap" under your GitHub Projects.
+	- Quick setup: run the script to bootstrap labels, a Kanban project with Iterations, and issues generated from Future Plans.
+
+### Bootstrap (optional)
+
+Run locally with GitHub CLI (requires authentication with repo/project access):
+
+```bash
+# one-time
+brew install gh jq
+gh auth login
+
+# create labels, project with iterations, and seed issues from Future Plans
+bash scripts/bootstrap_project_and_issues.sh
+```
+
+Afterwards, link the created Project in this section (Project → Share → copy URL).
+
 ## License
 
 [Choose your license - MIT, Apache 2.0, etc.]
