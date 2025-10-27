@@ -48,12 +48,7 @@ struct MapSelectionView: View {
                             }
                             .padding(.vertical, 16)
                             .padding(.horizontal, 20)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
+                            .modifier(GlassCardModifier(config: .init(cornerRadius: 16), tint: .green))
                         }
                         .buttonStyle(.plain)
                         
@@ -75,12 +70,7 @@ struct MapSelectionView: View {
                             }
                             .padding(.vertical, 16)
                             .padding(.horizontal, 20)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
+                            .modifier(GlassCardModifier(config: .init(cornerRadius: 16), tint: .red))
                         }
                         .buttonStyle(.plain)
                     }
@@ -145,12 +135,8 @@ struct MapSelectionView: View {
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .overlay(
-                            Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(GlassButtonStyle())
                     .disabled(locationViewModel.startLocation == nil && locationViewModel.endLocation == nil)
                     .opacity((locationViewModel.startLocation == nil && locationViewModel.endLocation == nil) ? 0.5 : 1.0)
                 }
@@ -295,15 +281,8 @@ struct MapSelectionView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
-                )
-                .foregroundStyle(.blue)
-                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 4)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(GlassButtonStyle())
             .disabled(locationViewModel.route == nil)
             .opacity(locationViewModel.route == nil ? 0.5 : 1.0)
 
@@ -332,15 +311,8 @@ struct MapSelectionView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(Color.green.opacity(0.3), lineWidth: 1.5)
-                )
-                .foregroundStyle(.green)
-                .shadow(color: Color.green.opacity(0.3), radius: 10, x: 0, y: 4)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(GlassButtonStyle())
             .disabled(locationViewModel.route == nil)
             .opacity(locationViewModel.route == nil ? 0.5 : 1.0)
         }

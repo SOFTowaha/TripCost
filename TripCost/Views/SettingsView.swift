@@ -25,11 +25,7 @@ struct SettingsView: View {
                     }
                     .padding(24)
                 }
-                .background(
-                    Rectangle()
-                        .fill(.thinMaterial)
-                        .ignoresSafeArea()
-                )
+                .tcGlassBackground()
                 if showSaved {
                     HStack {
                         Spacer()
@@ -91,11 +87,7 @@ extension SettingsView {
             .toggleStyle(.switch)
         }
         .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
+        .modifier(GlassCardModifier(config: .init(cornerRadius: 16)))
     }
 
     private var currencyCard: some View {
@@ -138,11 +130,7 @@ extension SettingsView {
             .buttonStyle(.plain)
         }
         .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
+        .modifier(GlassCardModifier(config: .init(cornerRadius: 16)))
     }
 
     private var fuelPricingCard: some View {
@@ -198,11 +186,7 @@ extension SettingsView {
             }
         }
         .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
+        .modifier(GlassCardModifier(config: .init(cornerRadius: 16)))
     }
 
     private var aboutCard: some View {
@@ -220,7 +204,7 @@ extension SettingsView {
                 Text("1.0.0").foregroundStyle(.secondary)
             }
             .padding(12)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .modifier(GlassCardModifier(config: .init(cornerRadius: 12)))
 
             HStack(spacing: 12) {
                 Text("Build")
@@ -228,14 +212,10 @@ extension SettingsView {
                 Text("2025.1").foregroundStyle(.secondary)
             }
             .padding(12)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .modifier(GlassCardModifier(config: .init(cornerRadius: 12)))
         }
         .padding(20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
+        .modifier(GlassCardModifier(config: .init(cornerRadius: 16)))
     }
 }
 
