@@ -42,11 +42,7 @@ struct VehicleSelectionView: View {
                     }
                 }
             }
-            .background(
-                Rectangle()
-                    .fill(.thinMaterial)
-                    .ignoresSafeArea()
-            )
+            .tcGlassBackground()
             .navigationTitle("My Vehicles")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -59,15 +55,8 @@ struct VehicleSelectionView: View {
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(Color.blue.opacity(0.3), lineWidth: 1.5)
-                        )
-                        .foregroundStyle(.blue)
-                        .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 4)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(GlassButtonStyle())
                 }
             }
             .sheet(isPresented: $showAddVehicle) {
@@ -220,11 +209,6 @@ struct VehicleCard: View {
             }
         }
         .padding(18)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(isSelected ? Color.blue.opacity(0.4) : Color.white.opacity(0.2), lineWidth: isSelected ? 2 : 1)
-        )
-        .shadow(color: isSelected ? .blue.opacity(0.2) : .black.opacity(0.07), radius: isSelected ? 12 : 8, x: 0, y: 4)
+        .modifier(GlassCardModifier(config: .init(cornerRadius: 18), tint: .blue))
     }
 }

@@ -28,6 +28,8 @@ struct SavedTripsView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .tcGlassBackground()
             .navigationTitle("Saved Trips")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -262,12 +264,7 @@ struct SavedTripDetailView: View {
                         }
                     }
                     .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.10), radius: 8, x: 0, y: 4)
+                    .modifier(GlassCardModifier(config: .init(cornerRadius: 20)))
                 }
                 .padding(.horizontal)
 

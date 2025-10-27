@@ -7,39 +7,6 @@
 
 import SwiftUI
 
-//struct ContentView: View {
-//    @State private var selectedTab = 0
-//    @State private var locationViewModel = LocationViewModel()
-//    @State private var vehicleViewModel = VehicleViewModel()
-//    @State private var calculatorViewModel = TripCalculatorViewModel()
-//    
-//    var body: some View {
-//        TabView(selection: $selectedTab) {
-//            MapSelectionView(
-//                locationViewModel: locationViewModel,
-//                calculatorViewModel: calculatorViewModel,
-//                vehicleViewModel: vehicleViewModel
-//            )
-//            .tabItem {
-//                Label("Trip", systemImage: "map.fill")
-//            }
-//            .tag(0)
-//            
-//            VehicleSelectionView(viewModel: vehicleViewModel)
-//                .tabItem {
-//                    Label("Vehicles", systemImage: "car.fill")
-//                }
-//                .tag(1)
-//            
-//            SettingsView(calculatorViewModel: calculatorViewModel)
-//                .tabItem {
-//                    Label("Settings", systemImage: "gearshape.fill")
-//                }
-//                .tag(2)
-//        }
-//        .tint(.blue)
-//    }
-//}
 struct ContentView: View {
     @Environment(LocationViewModel.self) private var locationVM
     @Environment(VehicleViewModel.self) private var vehicleVM
@@ -67,5 +34,8 @@ struct ContentView: View {
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(3)
         }
+        .tint(TCColor.primary)
+        .tcGlassBackground()
+        .animation(AnimationConstants.spring, value: selectedTab)
     }
 }
