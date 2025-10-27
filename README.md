@@ -17,7 +17,8 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 💾 **Save & Manage Trips** - Save trips with routes, costs, and share with friends *(Oct 20, 2025)*  
 ✏️ **Editable Saved Trips** - Edit split costs for saved trips with live calculations *(Oct 20, 2025)*  
 📍 **Location Tracking** - Auto-capture place names from map selections *(Oct 20, 2025)*  
-📋 **Camping Checklist** - Editable packing lists with templates for food, clothing, gear, and activities *(Oct 27, 2025)*  
+📋 **Camping Checklist** - Editable packing lists with templates for food, clothing, gear, and activities *(Oct 27, 2025)*
+☀️ **Weather Forecasts** - Automatic weather fetching for trip destinations with current conditions *(Oct 27, 2025)*  
 
 
 ## Requirements
@@ -123,9 +124,9 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 - [ ] Trail-specific notes and tips
 
 ### 🏕️ Camping & Outdoor Features
+- [x] Weather forecasts for destinations *(Oct 27, 2025)*
 - [ ] Campground finder integration
 - [ ] Trail difficulty ratings
-- [ ] Weather forecasts for destinations
 - [ ] Hiking distance and elevation tracking
 - [ ] Wildlife and safety alerts
 

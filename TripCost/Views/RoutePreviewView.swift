@@ -40,6 +40,12 @@ struct RoutePreviewView: View {
                     .buttonStyle(.plain)
                 }
             }
+            .task {
+                // Ensure weather is fetched when preview opens
+                if locationViewModel.destinationWeather == nil && locationViewModel.endLocation != nil {
+                    await locationViewModel.fetchWeatherForDestination()
+                }
+            }
         }
     }
 
@@ -70,6 +76,9 @@ struct RoutePreviewView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 routeInfoCard
+                if locationViewModel.destinationWeather != nil || locationViewModel.isLoadingWeather {
+                    weatherCard
+                }
                 directionsCard
             }
             .padding(.horizontal, 24)
@@ -128,6 +137,97 @@ struct RoutePreviewView: View {
                     value: locationViewModel.endAddress,
                     color: .red
                 )
+            }
+        }
+        .padding(24)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+    }
+    
+    private var weatherCard: some View {
+        VStack(spacing: 18) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Destination Weather")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
+                    Text("Current conditions")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if locationViewModel.isLoadingWeather {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else {
+                    Image(systemName: "cloud.sun.fill")
+                        .font(.title)
+                        .foregroundStyle(.cyan.opacity(0.5))
+                }
+            }
+            
+            Divider()
+                .opacity(0.5)
+            
+            if let weather = locationViewModel.destinationWeather {
+                HStack(spacing: 24) {
+                    // Temperature & icon
+                    HStack(spacing: 16) {
+                        Image(systemName: weather.sfSymbol)
+                            .font(.system(size: 48))
+                            .foregroundStyle(.cyan)
+                            .symbolEffect(.pulse)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(Int(weather.temperatureInFahrenheit))°F")
+                                .font(.system(size: 36, weight: .bold))
+                            Text("\(Int(weather.temperature))°C")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Condition details
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text(weather.condition)
+                            .font(.headline)
+                        Text(weather.description.capitalized)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        
+                        if let humidity = weather.humidity {
+                            HStack(spacing: 4) {
+                                Image(systemName: "humidity.fill")
+                                    .font(.caption)
+                                Text("\(humidity)%")
+                                    .font(.caption)
+                            }
+                            .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } else if locationViewModel.isLoadingWeather {
+                HStack {
+                    ProgressView()
+                    Text("Fetching weather data...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+            } else {
+                Text("Weather data unavailable")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
             }
         }
         .padding(24)
