@@ -25,33 +25,51 @@ gh label create "area:group"    -c "#D93F0B" -d "Group features" -R "$OWNER/$REP
 gh label create "area:core"     -c "#CCCCCC" -d "Core app" -R "$OWNER/$REPO" 2>/dev/null || true
 
 echo "Creating Project (user-level) if missing..."
-PROJECT_ID=$(gh project list --owner "$OWNER" --format json | jq -r ".[] | select(.title==\"$PROJECT_NAME\") | .id")
-if [[ -z "$PROJECT_ID" ]]; then
-  gh project create "$PROJECT_NAME" --owner "$OWNER" --public >/dev/null
-  PROJECT_ID=$(gh project list --owner "$OWNER" --format json | jq -r ".[] | select(.title==\"$PROJECT_NAME\") | .id")
-  echo "Created project: $PROJECT_NAME ($PROJECT_ID)"
+# Helper to find the newest project number matching title (handles different JSON shapes)
+get_project_number() {
+  local title="$1"
+  # Shape 1: { "projects": [ ... ] }
+  gh project list --owner "$OWNER" --format json 2>/dev/null \
+    | jq -r --arg t "$title" '.projects[]? | select(.title==$t) | .number' \
+    | sort -nr | head -n1
+}
+
+# Prefer project number for subsequent CLI commands
+PROJECT_NUMBER=$(get_project_number "$PROJECT_NAME" || true)
+if [[ -z "${PROJECT_NUMBER:-}" ]]; then
+  # Create the project and derive number from returned URL or by re-listing
+  create_out=$(gh project create --owner "$OWNER" --title "$PROJECT_NAME" 2>/dev/null || true)
+  # Attempt to parse URL for number, e.g., https://github.com/users/OWNER/projects/123
+  if [[ -n "${create_out:-}" && "$create_out" =~ /projects/([0-9]+) ]]; then
+    PROJECT_NUMBER="${BASH_REMATCH[1]}"
+  fi
+  # Fallback: re-list to get the newest one by title
+  if [[ -z "${PROJECT_NUMBER:-}" ]]; then
+    PROJECT_NUMBER=$(get_project_number "$PROJECT_NAME")
+  fi
+  echo "Created project: $PROJECT_NAME (#$PROJECT_NUMBER)"
 else
-  echo "Found project: $PROJECT_NAME ($PROJECT_ID)"
+  echo "Found project: $PROJECT_NAME (#$PROJECT_NUMBER)"
 fi
 
 echo "Adding project fields (Iteration, Priority) if missing..."
-# Create Iteration field
-ITER_FIELD_ID=$(gh project field-list "$PROJECT_ID" --owner "$OWNER" --format json | jq -r '.fields[] | select(.name=="Iteration") | .id' 2>/dev/null || true)
-if [[ -z "$ITER_FIELD_ID" || "$ITER_FIELD_ID" == "null" ]]; then
-  gh project field-create "$PROJECT_ID" --owner "$OWNER" --name "Iteration" --data-type ITERATION >/dev/null
-  ITER_FIELD_ID=$(gh project field-list "$PROJECT_ID" --owner "$OWNER" --format json | jq -r '.fields[] | select(.name=="Iteration") | .id')
+# Create Iteration field (use SINGLE_SELECT since ITERATION type is not supported in all gh CLI versions)
+ITER_FIELD_ID=$(gh project field-list "$PROJECT_NUMBER" --owner "$OWNER" --format json 2>/dev/null | jq -r '.fields[]? | select(.name=="Iteration") | .id' || true)
+if [[ -z "${ITER_FIELD_ID:-}" || "$ITER_FIELD_ID" == "null" ]]; then
+  echo "  Creating Iteration field as SINGLE_SELECT with Sprint options"
+  gh project field-create "$PROJECT_NUMBER" --owner "$OWNER" --name "Iteration" --data-type SINGLE_SELECT --single-select-options "Sprint 1,Sprint 2,Sprint 3" >/dev/null 2>&1 || true
+  ITER_FIELD_ID=$(gh project field-list "$PROJECT_NUMBER" --owner "$OWNER" --format json 2>/dev/null | jq -r '.fields[]? | select(.name=="Iteration") | .id')
 fi
 # Create Priority field (single-select)
-PRIO_FIELD_ID=$(gh project field-list "$PROJECT_ID" --owner "$OWNER" --format json | jq -r '.fields[] | select(.name=="Priority") | .id' 2>/dev/null || true)
-if [[ -z "$PRIO_FIELD_ID" || "$PRIO_FIELD_ID" == "null" ]]; then
-  gh project field-create "$PROJECT_ID" --owner "$OWNER" --name "Priority" --data-type SINGLE_SELECT --option "P0" --option "P1" --option "P2" >/dev/null
-  PRIO_FIELD_ID=$(gh project field-list "$PROJECT_ID" --owner "$OWNER" --format json | jq -r '.fields[] | select(.name=="Priority") | .id')
+PRIO_FIELD_ID=$(gh project field-list "$PROJECT_NUMBER" --owner "$OWNER" --format json 2>/dev/null | jq -r '.fields[]? | select(.name=="Priority") | .id' || true)
+if [[ -z "${PRIO_FIELD_ID:-}" || "$PRIO_FIELD_ID" == "null" ]]; then
+  echo "  Creating Priority field as SINGLE_SELECT"
+  gh project field-create "$PROJECT_NUMBER" --owner "$OWNER" --name "Priority" --data-type SINGLE_SELECT --single-select-options "P0,P1,P2" >/dev/null 2>&1 || true
+  PRIO_FIELD_ID=$(gh project field-list "$PROJECT_NUMBER" --owner "$OWNER" --format json 2>/dev/null | jq -r '.fields[]? | select(.name=="Priority") | .id')
 fi
 
-echo "Creating iterations..."
-gh project iteration-create "$PROJECT_ID" --owner "$OWNER" --title "Sprint 1" --duration 14 >/dev/null || true
-gh project iteration-create "$PROJECT_ID" --owner "$OWNER" --title "Sprint 2" --duration 14 >/dev/null || true
-gh project iteration-create "$PROJECT_ID" --owner "$OWNER" --title "Sprint 3" --duration 14 >/dev/null || true
+echo "Skipping CLI iteration creation (gh project iteration-create not supported in all versions)"
+echo "  Sprints are available as Iteration field options: Sprint 1, Sprint 2, Sprint 3"
 
 echo "Creating issues from README Future Plans..."
 # Define issues (title|labels|body)
@@ -90,10 +108,30 @@ issues=(
 for spec in "${issues[@]}"; do
   IFS='|' read -r title labels body <<<"$spec"
   echo "Creating issue: $title"
-  number=$(gh issue create -R "$OWNER/$REPO" -t "$title" -b "$body" -l "$labels" --json number -q .number)
-  echo "  #$number"
-  # Add to project backlog
-  gh project item-add "$PROJECT_ID" --owner "$OWNER" --url "https://github.com/$OWNER/$REPO/issues/$number" >/dev/null
+  # Try JSON-friendly creation first (newer gh versions), then fall back to parsing URL output (older gh versions)
+  number=""
+  # Attempt JSON mode (ignore errors)
+  json_out=$(gh issue create -R "$OWNER/$REPO" -t "$title" -b "$body" -l "$labels" --json number --jq .number 2>/dev/null || true)
+  if [[ -n "$json_out" ]]; then
+    number="$json_out"
+  else
+    # Fallback: create issue and parse the returned URL for the number
+    url_out=$(gh issue create -R "$OWNER/$REPO" -t "$title" -b "$body" -l "$labels" 2>/dev/null | tail -n1 || true)
+    if [[ -n "$url_out" ]]; then
+      # Expect something like: https://github.com/OWNER/REPO/issues/123
+      if [[ "$url_out" =~ /issues/([0-9]+) ]]; then
+        number="${BASH_REMATCH[1]}"
+      fi
+    fi
+  fi
+
+  if [[ -n "$number" ]]; then
+    echo "  #$number"
+    # Add to project backlog
+    gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "https://github.com/$OWNER/$REPO/issues/$number" >/dev/null || true
+  else
+    echo "  Warning: could not determine issue number for '$title'. It may still have been created." >&2
+  fi
 done
 
 echo "Done. Project: $PROJECT_NAME"

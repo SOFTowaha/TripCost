@@ -7,6 +7,7 @@ generate_icon.sh
 # Ignore Xcode build files
 build/
 DerivedData/
+scripts/
 *.xcarchive
 
 # Xcode user-specific files
