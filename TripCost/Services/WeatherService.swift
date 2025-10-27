@@ -3,18 +3,33 @@ import CoreLocation
 
 /// Service to fetch weather data from OpenWeatherMap API
 /// Free tier provides current weather and basic forecast
+/// API key is loaded from .env file (see .env.example)
 class WeatherService {
     static let shared = WeatherService()
     
-    // Replace with your OpenWeatherMap API key (free tier: https://openweathermap.org/api)
-    // For production, store this securely (Keychain, environment, etc.)
-    private let apiKey = "REDACTED" // TODO: Add your API key
     private let baseURL = "https://api.openweathermap.org/data/2.5/weather"
     
-    private init() {}
+    /// API key loaded from configuration (see ConfigurationManager)
+    private var apiKey: String? {
+        ConfigurationManager.shared.openWeatherAPIKey
+    }
+    
+    private init() {
+        // Validate API key is configured
+        if apiKey == nil {
+            print("⚠️ WARNING: OpenWeatherMap API key not configured!")
+            print("ℹ️ Create a .env file with OPENWEATHER_API_KEY=your_key")
+            print("ℹ️ See .env.example for template")
+        }
+    }
     
     /// Fetch current weather for given coordinates
     func fetchWeather(for coordinate: CLLocationCoordinate2D) async throws -> WeatherData {
+        // Check API key is configured
+        guard let apiKey = apiKey, !apiKey.isEmpty else {
+            throw WeatherError.missingAPIKey
+        }
+        
         // Build URL
         var components = URLComponents(string: baseURL)!
         components.queryItems = [

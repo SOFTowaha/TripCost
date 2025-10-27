@@ -37,11 +37,26 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 
 ### Build from Source
 
-```bash
-git clone https://github.com/SOFTowaha/TripCost.git
-cd TripCost
-open TripCost.xcodeproj
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/SOFTowaha/TripCost.git
+   cd TripCost
+   ```
+
+2. **Configure API keys:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your OpenWeatherMap API key
+   ```
+
+3. **Open in Xcode:**
+   ```bash
+   open TripCost.xcodeproj
+   ```
+
+4. **Build and run** (⌘R)
+
+See [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
 ## Screenshots
 
 Screenshots of the app are available in the [`screenshots`](./screenshots) directory:
