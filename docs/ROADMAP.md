@@ -11,6 +11,7 @@ This roadmap is derived from the "Future Plans" section in `README.md` and organ
 
 - 2025-12 (Sprint 2)
   - Packing lists (food, clothing, gear)
+    - Templates available: Food, Clothing, Gear, Hiking Essentials, Camping (Full Kit), Road Trip Essentials
   - Campground finder integration
   - Export trip data to PDF/CSV
 
