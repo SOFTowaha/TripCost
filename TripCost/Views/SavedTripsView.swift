@@ -108,6 +108,7 @@ struct SavedTripDetailView: View {
     @State private var isEditing = false
     @State private var editedPeople: Int = 1
     @State private var editedCostPerPerson: Double = 0
+    @State private var checklistCount: (done: Int, total: Int) = (0, 0)
 
     var fuelCost: Double {
         // Default values for fuel price and unit (customize if you want to persist these per trip)
@@ -291,9 +292,124 @@ struct SavedTripDetailView: View {
                     }
                     .padding(.horizontal)
                 }
+                
+                // Weather
+                if let weather = trip.destinationWeather {
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("Destination Weather", systemImage: "cloud.sun.fill")
+                                .font(.headline)
+                            Divider()
+                            HStack(spacing: 24) {
+                                // Temperature & icon
+                                HStack(spacing: 16) {
+                                    Image(systemName: weather.sfSymbol)
+                                        .font(.system(size: 48))
+                                        .foregroundStyle(.cyan)
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("\(Int(weather.temperatureInFahrenheit))°F")
+                                            .font(.system(size: 32, weight: .bold))
+                                        Text("\(Int(weather.temperature))°C")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                // Condition details
+                                VStack(alignment: .trailing, spacing: 8) {
+                                    Text(weather.condition)
+                                        .font(.headline)
+                                    Text(weather.description.capitalized)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                    
+                                    if let humidity = weather.humidity {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "humidity.fill")
+                                                .font(.caption)
+                                            Text("\(humidity)%")
+                                                .font(.caption)
+                                        }
+                                        .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+                    .padding(.horizontal)
+                }
+
+                // Camping Checklist summary + link
+                GroupBox {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Label("Camping Checklist", systemImage: "checklist")
+                                .font(.headline)
+                            Spacer()
+                            NavigationLink {
+                                CampingChecklistView(trip: trip)
+                            } label: {
+                                Label("Open", systemImage: "square.and.pencil")
+                            }
+                            .buttonStyle(.automatic)
+                            .controlSize(.small)
+                        }
+                        Divider()
+                        let list = trip.campingChecklist ?? []
+                        let total = list.count
+                        let done = list.filter{ $0.isDone }.count
+                        if total == 0 {
+                            Text("No items yet. Click Open to start your checklist.")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            HStack {
+                                ProgressView(value: Double(done), total: Double(total))
+                                    .frame(maxWidth: 260)
+                                Text("\(done)/\(total) done")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.top, 4)
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(list.prefix(3)) { item in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
+                                            .foregroundStyle(item.isDone ? .green : .secondary)
+                                        Text(item.title)
+                                            .foregroundStyle(.primary)
+                                            .lineLimit(1)
+                                        Spacer()
+                                    }
+                                    .font(.subheadline)
+                                }
+                                if total > 3 {
+                                    Text("+ \(total - 3) more…")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                }
+                .padding(.horizontal)
 
                 // Actions
                 HStack(spacing: 16) {
+                    Button {
+                        showShareSheet = true
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.blue.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                            .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
                     if isEditing {
                         Button {
                             // Save changes
@@ -381,11 +497,14 @@ struct ShareTripView: View {
                     Text("Trip Summary")
                         .font(.headline)
                     
-                    Text(generateShareText())
-                        .font(.body)
-                        .textSelection(.enabled)
-                        .padding()
-                        .background(.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+                    ScrollView {
+                        Text(generateShareText())
+                            .font(.body)
+                            .textSelection(.enabled)
+                            .padding()
+                            .background(.gray.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                    }
+                    .frame(maxHeight: 260)
                 }
                 .padding(.horizontal)
                 
@@ -401,7 +520,19 @@ struct ShareTripView: View {
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal)
+                
+                #if os(macOS)
+                if #available(macOS 13.0, *) {
+                    ShareLink(item: generateShareText()) {
+                        Label("Share…", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
+                }
+                #endif
             }
             .padding()
             .toolbar {
@@ -422,6 +553,21 @@ struct ShareTripView: View {
         if trip.numberOfPeople > 1 {
             splitText = "👥 Split: \(trip.numberOfPeople) people, \(trip.currency.symbol)\(String(format: "%.2f", trip.costPerPerson))/person\n"
         }
+        var checklistBlock = ""
+        let list = trip.campingChecklist ?? []
+        if !list.isEmpty {
+            let rendered = list.map { item in
+                "- [\(item.isDone ? "x" : " ")] \(item.title)"
+            }.joined(separator: "\n")
+            checklistBlock = "\n🧭 Camping Checklist\n\(rendered)\n"
+        }
+        var weatherBlock = ""
+        if let weather = trip.destinationWeather {
+            weatherBlock = "\n☀️ Weather at Destination\n🌡️ \(Int(weather.temperatureInFahrenheit))°F (\(Int(weather.temperature))°C)\n\(weather.condition) - \(weather.description.capitalized)\n"
+            if let humidity = weather.humidity {
+                weatherBlock += "💧 Humidity: \(humidity)%\n"
+            }
+        }
         return """
         🚗 \(trip.name)
         
@@ -432,6 +578,7 @@ struct ShareTripView: View {
         💰 Total Cost: \(trip.currency.symbol)\(cost)
         \(splitText)
         \(trip.notes ?? "")
+        \(weatherBlock)\(checklistBlock)
         """
     }
     

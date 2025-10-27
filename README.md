@@ -17,6 +17,8 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 💾 **Save & Manage Trips** - Save trips with routes, costs, and share with friends *(Oct 20, 2025)*  
 ✏️ **Editable Saved Trips** - Edit split costs for saved trips with live calculations *(Oct 20, 2025)*  
 📍 **Location Tracking** - Auto-capture place names from map selections *(Oct 20, 2025)*  
+📋 **Camping Checklist** - Editable packing lists with templates for food, clothing, gear, and activities *(Oct 27, 2025)*
+☀️ **Weather Forecasts** - Automatic weather fetching for trip destinations with current conditions *(Oct 27, 2025)*  
 
 
 ## Requirements
@@ -35,11 +37,26 @@ A modern macOS trip cost calculator with beautiful glass UI design.
 
 ### Build from Source
 
-```bash
-git clone https://github.com/SOFTowaha/TripCost.git
-cd TripCost
-open TripCost.xcodeproj
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/SOFTowaha/TripCost.git
+   cd TripCost
+   ```
+
+2. **Configure API keys:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your OpenWeatherMap API key
+   ```
+
+3. **Open in Xcode:**
+   ```bash
+   open TripCost.xcodeproj
+   ```
+
+4. **Build and run** (⌘R)
+
+See [Configuration Guide](docs/CONFIGURATION.md) for detailed setup instructions.
 ## Screenshots
 
 Screenshots of the app are available in the [`screenshots`](./screenshots) directory:
@@ -115,15 +132,16 @@ TripCost is evolving into a comprehensive trip planning tool for camping, hiking
 - [ ] Nearby attractions and Food
 
 ### 📝 Notes & Lists
+- [x] Camping checklist with templates *(Oct 27, 2025)*
+- [x] Packing lists (food, clothing, gear) *(Oct 27, 2025)*
+- [x] Activity templates (hiking, camping, road trip) *(Oct 27, 2025)*
 - [ ] Notes feature for trip planning
-- [ ] Packing lists (food, clothing, gear)
-- [ ] Camping checklist templates
 - [ ] Trail-specific notes and tips
 
 ### 🏕️ Camping & Outdoor Features
+- [x] Weather forecasts for destinations *(Oct 27, 2025)*
 - [ ] Campground finder integration
 - [ ] Trail difficulty ratings
-- [ ] Weather forecasts for destinations
 - [ ] Hiking distance and elevation tracking
 - [ ] Wildlife and safety alerts
 

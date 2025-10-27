@@ -48,6 +48,12 @@ Temporary Items
 .build/
 Packages/
 Package.pins
+
+# Environment variables and secrets
+.env
+*.xcconfig
+!Config.xcconfig.example
+Config.xcconfig
 Package.resolved
 *.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 
