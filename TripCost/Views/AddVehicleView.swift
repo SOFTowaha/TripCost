@@ -30,7 +30,7 @@ struct AddVehicleView: View {
                             Image(systemName: "plus.circle.fill")
                                 .foregroundStyle(.blue)
                             Text("Add Vehicle")
-                                .fontWeight(.semibold)
+                                .fontWeight(.light)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -41,7 +41,8 @@ struct AddVehicleView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .padding(.top, 8)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
                 }
                 .padding(24)
             }

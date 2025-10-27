@@ -201,7 +201,7 @@ extension SettingsView {
             HStack(spacing: 12) {
                 Text("Version")
                 Spacer()
-                Text("1.0.0").foregroundStyle(.secondary)
+                Text("1.2.1").foregroundStyle(.secondary)
             }
             .padding(12)
             .modifier(GlassCardModifier(config: .init(cornerRadius: 12)))
@@ -209,7 +209,7 @@ extension SettingsView {
             HStack(spacing: 12) {
                 Text("Build")
                 Spacer()
-                Text("2025.1").foregroundStyle(.secondary)
+                Text("2025.5").foregroundStyle(.secondary)
             }
             .padding(12)
             .modifier(GlassCardModifier(config: .init(cornerRadius: 12)))
