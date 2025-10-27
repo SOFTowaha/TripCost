@@ -1,0 +1,57 @@
+name: "Feature request"
+description: "Suggest an idea for TripCost"
+title: "feat: <short description>"
+labels: ["type:feature", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please fill out the details below.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What problem does this solve? What is the desired outcome?
+      placeholder: e.g., Let users save favorite routes and destinations for quick access.
+    validations:
+      required: true
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: As a <type of user>, I want <goal> so that <reason>.
+      placeholder: As a traveler, I want to favorite routes so I can plan repeat trips faster.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Bullet checklist of what must be true for this to be done
+      placeholder: |
+        - Can favorite any computed route
+        - Favorites visible in a dedicated list
+        - Remove favorite
+        - Persisted across app launches
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - area:map
+        - area:notes
+        - area:camping
+        - area:expenses
+        - area:gear
+        - area:group
+        - area:core
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots here.
+    validations:
+      required: false
