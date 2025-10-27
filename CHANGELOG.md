@@ -5,6 +5,25 @@ All notable changes to TripCost will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-10-27
+
+### 🔐 Security
+- Migrated OpenWeather API key handling to `.env` (git-ignored)
+- Removed leaked key from repo history using git-filter-repo
+- Updated `.env.example` and docs to use placeholders
+
+### ✨ Enhanced
+- Weather card in Route Preview shows a loading state and clear fallback when unavailable
+- Config system via `ConfigurationManager` with .env, Info.plist, and env var priority
+
+### 🐛 Fixed
+- Resolved a merge conflict artifact and cleaned Xcode user state from version control
+- Build reliability in terminal by avoiding Anaconda linker conflicts (documented clean PATH usage)
+
+### 📝 Documentation
+- Added `docs/CONFIGURATION.md` and updated `docs/WEATHER_SETUP.md`
+- Added `docs/ENV_MIGRATION.md` detailing the move to environment-based secrets
+
 ## [1.1.1] - 2025-10-27
 
 ### ✨ Enhanced
@@ -102,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 [1.1.1]: https://github.com/SOFTowaha/TripCost/compare/v1.1.0...v1.1.1
+[1.1.2]: https://github.com/SOFTowaha/TripCost/compare/v1.1.1...v1.1.2
 [1.1.0]: https://github.com/SOFTowaha/TripCost/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/SOFTowaha/TripCost/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/SOFTowaha/TripCost/compare/v1.0.2...v1.0.3
