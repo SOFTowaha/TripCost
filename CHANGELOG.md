@@ -5,6 +5,29 @@ All notable changes to TripCost will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2025-10-27
+
+### 🔐 Security & Configuration
+- **Keychain Storage**: Added secure API key storage via macOS Keychain with UI in Settings
+- **Weather API Configuration UI**: New Settings section to manage OpenWeatherMap API key
+  - Secure text field with show/hide toggle
+  - Save to Keychain and Remove buttons with visual feedback
+  - Persistent storage across app launches
+
+### ✨ Enhanced
+- Updated `ConfigurationManager` priority system: Keychain → Environment variable → Info.plist → .env (Debug only)
+- Added app sandbox entitlements with network client access for weather API
+- Debug-only logging for API key warnings to avoid console spam in Release builds
+
+### 🔧 Technical
+- Implemented `KeychainService` utility for secure credential storage with macOS Keychain
+- Project now includes `TripCost.entitlements` with sandbox and network permissions
+- Updated project.pbxproj to reference entitlements in build configuration
+
+### 📝 Documentation
+- Updated README with Keychain-based API key management feature
+- Enhanced configuration instructions with multiple setup options
+
 ## [1.1.2] - 2025-10-27
 
 ### 🔐 Security
@@ -130,8 +153,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.1.1]: https://github.com/SOFTowaha/TripCost/compare/v1.1.0...v1.1.1
+[1.1.3]: https://github.com/SOFTowaha/TripCost/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/SOFTowaha/TripCost/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/SOFTowaha/TripCost/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/SOFTowaha/TripCost/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/SOFTowaha/TripCost/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/SOFTowaha/TripCost/compare/v1.0.2...v1.0.3
