@@ -2,7 +2,7 @@
 
 ## Environment Variables
 
-TripCost uses environment variables for sensitive configuration like API keys.
+TripCost uses environment variables and the macOS Keychain for sensitive configuration like API keys.
 
 ### Setup
 
@@ -17,6 +17,9 @@ TripCost uses environment variables for sensitive configuration like API keys.
    ```bash
    # OpenWeatherMap API (free tier: https://openweathermap.org/api)
    OPENWEATHER_API_KEY=your_actual_api_key_here
+
+   # API Ninjas (vehicle data: https://api-ninjas.com/)
+   API_NINJAS_API_KEY=your_actual_api_key_here
    ```
 
 3. **The .env file is git-ignored**
@@ -28,14 +31,16 @@ TripCost uses environment variables for sensitive configuration like API keys.
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `OPENWEATHER_API_KEY` | Yes | OpenWeatherMap API key for weather data |
+| `API_NINJAS_API_KEY`  | Yes | API Ninjas key for vehicle make/model/MPG data |
 
 ### How It Works
 
 The app uses `ConfigurationManager` to load configuration in this order:
 
-1. **`.env` file** (highest priority) - Local development
-2. **Info.plist** - Build-time configuration
-3. **Environment variables** - Runtime/CI/CD
+1. **Keychain (in-app Settings)** – best for end-user runtime config (OpenWeather, and optionally API Ninjas)
+2. **Environment variables** – e.g., Xcode Scheme or CI/CD
+3. **Info.plist** – build-time config (e.g., via xcconfig)
+4. **`.env` file (Debug-only)** – convenient for local development
 
 ### Security Best Practices
 
@@ -55,14 +60,16 @@ The app uses `ConfigurationManager` to load configuration in this order:
 If you're contributing to TripCost:
 
 1. Copy `.env.example` to `.env`
-2. Get your own free OpenWeatherMap API key
+2. Get your own free OpenWeatherMap and API Ninjas API keys
 3. Never commit your `.env` file
 
 ### Troubleshooting
 
 **"API key not configured" warning?**
-- Check that `.env` exists in project root
-- Verify the format: `OPENWEATHER_API_KEY=your_key` (no spaces around =)
+- If using the Settings screen, save your key(s) to Keychain
+- Or, check that `.env` exists in project root (Debug builds)
+- Verify the format: `OPENWEATHER_API_KEY=your_key` (no spaces around `=`)
+- Same for `API_NINJAS_API_KEY=your_key`
 - Make sure the key is not `your_api_key_here`
 
 **Still not working?**
