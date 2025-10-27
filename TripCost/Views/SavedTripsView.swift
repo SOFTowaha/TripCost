@@ -305,7 +305,7 @@ struct SavedTripDetailView: View {
                             } label: {
                                 Label("Open", systemImage: "square.and.pencil")
                             }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(.automatic)
                             .controlSize(.small)
                         }
                         Divider()

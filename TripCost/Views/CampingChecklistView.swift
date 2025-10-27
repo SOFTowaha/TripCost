@@ -35,10 +35,10 @@ struct CampingChecklistView: View {
                     .font(TCTypography.caption)
                     .foregroundStyle(TCColor.textSecondary)
                 // Share button
-                Button { shareChecklist() } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-                .buttonStyle(GlassButtonStyle())
+//                Button { shareChecklist() } label: {
+//                    Label("Share", systemImage: "square.and.arrow.up")
+//                }
+//                .buttonStyle(GlassButtonStyle())
             }
             .padding(.horizontal)
 
@@ -53,9 +53,20 @@ struct CampingChecklistView: View {
                 .buttonStyle(GlassButtonStyle())
                 .keyboardShortcut(.return)
                 Menu {
-                    Button("Base Camping Kit") { insertTemplate(.base) }
-                    Button("Cooking Kit") { insertTemplate(.cooking) }
-                    Button("Hiking Essentials") { insertTemplate(.hiking) }
+                    Section("Packing Lists") {
+                        Button("Food") { insertTemplate(.food) }
+                        Button("Clothing") { insertTemplate(.clothing) }
+                        Button("Gear") { insertTemplate(.gear) }
+                    }
+                    Section("Activity Templates") {
+                        Button("Hiking Essentials") { insertTemplate(.hiking) }
+                        Button("Camping (Full Kit)") { insertTemplate(.campingFull) }
+                        Button("Road Trip Essentials") { insertTemplate(.roadTrip) }
+                    }
+                    Section("Basic Kits") {
+                        Button("Base Camping Kit") { insertTemplate(.base) }
+                        Button("Cooking Kit") { insertTemplate(.cooking) }
+                    }
                 } label: {
                     Label("Templates", systemImage: "list.bullet.rectangle")
                 }
@@ -108,11 +119,15 @@ struct CampingChecklistView: View {
                     Label("Close", systemImage: "xmark.circle")
                         .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(GlassButtonStyle())
+                .keyboardShortcut(.cancelAction)
                 Button(action: save) {
                     Label("Save", systemImage: "checkmark.circle")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(PrimaryButtonStyle())
+                .keyboardShortcut("s", modifiers: [.command])
+                
             }
             .padding([.horizontal, .bottom])
         }
@@ -124,7 +139,8 @@ struct CampingChecklistView: View {
     private func addItem() {
         let title = newItemTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !title.isEmpty else { return }
-        items.append(ChecklistItem(title: title))
+        // Insert newest item at the top
+        items.insert(ChecklistItem(title: title), at: 0)
         newItemTitle = ""
     }
 
@@ -238,7 +254,7 @@ private extension CampingChecklistView {
 }
 
 // MARK: - Templates
-private enum ChecklistTemplate { case base, cooking, hiking }
+private enum ChecklistTemplate { case base, cooking, hiking, food, clothing, gear, campingFull, roadTrip }
 
 private extension CampingChecklistView {
     func insertTemplate(_ template: ChecklistTemplate) {
@@ -259,8 +275,47 @@ private extension CampingChecklistView {
                 "Map/Compass", "Snacks", "Extra water", "Rain jacket",
                 "Extra layers", "Sun protection", "Multi-tool"
             ]
+        case .food:
+            itemsToAdd = [
+                "Breakfast (oats/eggs)", "Lunch (sandwich/wrap)", "Dinner (pasta/rice)",
+                "Snacks (nuts/bars)", "Coffee/Tea", "Cooking oil/spices",
+                "Cooler/Ice", "Trash bags"
+            ]
+        case .clothing:
+            itemsToAdd = [
+                "Base layers", "Mid-layer (fleece)", "Insulated jacket", "Rain jacket",
+                "Hiking pants/shorts", "Socks (wool)", "Hat/Beanie", "Gloves",
+                "Sleepwear"
+            ]
+        case .gear:
+            itemsToAdd = [
+                "Backpack/Daypack", "Headlamp + batteries", "Knife/Multi-tool",
+                "Water filter", "Power bank + cable", "Duct tape/Repair kit",
+                "Paracord", "Trekking poles"
+            ]
+        case .campingFull:
+            itemsToAdd = [
+                "Tent", "Footprint", "Stakes/Guylines",
+                "Sleeping bag", "Sleeping pad", "Pillow",
+                "Stove", "Fuel", "Cookset", "Utensils", "Mug/Bowl", "Lighter/Matches",
+                "Breakfast", "Lunch", "Dinner", "Snacks", "Coffee/Tea",
+                "Water bottles", "Filter/Purifier",
+                "Headlamp + spare batteries",
+                "Toiletries", "TP + Trowel", "Soap/Sponge",
+                "First aid kit", "Map/Compass", "Sunscreen", "Insect repellent",
+                "Trash bags", "Repair kit", "Power bank"
+            ]
+        case .roadTrip:
+            itemsToAdd = [
+                "Driver’s license/Insurance", "Car registration", "Spare tire/Jack",
+                "Jumper cables", "Tire inflator/Sealant", "Emergency kit",
+                "Snacks & Water", "Sunglasses", "Phone mount/Charger",
+                "Offline maps downloaded"
+            ]
         }
-        let newOnes = itemsToAdd.map { ChecklistItem(title: $0) }
-        items.append(contentsOf: newOnes)
+        // Insert template items at the top, preserving the template order
+        for t in itemsToAdd.reversed() {
+            items.insert(ChecklistItem(title: t), at: 0)
+        }
     }
 }
