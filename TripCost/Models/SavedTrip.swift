@@ -11,6 +11,8 @@ struct SavedTrip: Identifiable, Codable, Hashable {
     var currency: Currency
     var additionalCosts: [AdditionalCost]
     var notes: String?
+    // Camping checklist items (optional for backward compatibility)
+    var campingChecklist: [ChecklistItem]? // treat nil as [] in UI
     var numberOfPeople: Int
     var costPerPerson: Double
     // For sharing
@@ -25,6 +27,7 @@ struct SavedTrip: Identifiable, Codable, Hashable {
          currency: Currency,
          additionalCosts: [AdditionalCost] = [],
          notes: String? = nil,
+         campingChecklist: [ChecklistItem]? = nil,
          numberOfPeople: Int = 1,
          costPerPerson: Double = 0,
          shareURL: URL? = nil) {
@@ -37,6 +40,7 @@ struct SavedTrip: Identifiable, Codable, Hashable {
         self.currency = currency
         self.additionalCosts = additionalCosts
         self.notes = notes
+        self.campingChecklist = campingChecklist
         self.numberOfPeople = numberOfPeople
         self.costPerPerson = costPerPerson
         self.shareURL = shareURL

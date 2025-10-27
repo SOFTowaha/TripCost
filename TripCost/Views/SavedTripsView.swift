@@ -108,6 +108,7 @@ struct SavedTripDetailView: View {
     @State private var isEditing = false
     @State private var editedPeople: Int = 1
     @State private var editedCostPerPerson: Double = 0
+    @State private var checklistCount: (done: Int, total: Int) = (0, 0)
 
     var fuelCost: Double {
         // Default values for fuel price and unit (customize if you want to persist these per trip)
@@ -292,6 +293,61 @@ struct SavedTripDetailView: View {
                     .padding(.horizontal)
                 }
 
+                // Camping Checklist summary + link
+                GroupBox {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Label("Camping Checklist", systemImage: "checklist")
+                                .font(.headline)
+                            Spacer()
+                            NavigationLink {
+                                CampingChecklistView(trip: trip)
+                            } label: {
+                                Label("Open", systemImage: "square.and.pencil")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.small)
+                        }
+                        Divider()
+                        let list = trip.campingChecklist ?? []
+                        let total = list.count
+                        let done = list.filter{ $0.isDone }.count
+                        if total == 0 {
+                            Text("No items yet. Click Open to start your checklist.")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            HStack {
+                                ProgressView(value: Double(done), total: Double(total))
+                                    .frame(maxWidth: 260)
+                                Text("\(done)/\(total) done")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.top, 4)
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(list.prefix(3)) { item in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
+                                            .foregroundStyle(item.isDone ? .green : .secondary)
+                                        Text(item.title)
+                                            .foregroundStyle(.primary)
+                                            .lineLimit(1)
+                                        Spacer()
+                                    }
+                                    .font(.subheadline)
+                                }
+                                if total > 3 {
+                                    Text("+ \(total - 3) more…")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                }
+                .padding(.horizontal)
+
                 // Actions
                 HStack(spacing: 16) {
                     if isEditing {
@@ -422,6 +478,14 @@ struct ShareTripView: View {
         if trip.numberOfPeople > 1 {
             splitText = "👥 Split: \(trip.numberOfPeople) people, \(trip.currency.symbol)\(String(format: "%.2f", trip.costPerPerson))/person\n"
         }
+        var checklistBlock = ""
+        let list = trip.campingChecklist ?? []
+        if !list.isEmpty {
+            let rendered = list.map { item in
+                "- [\(item.isDone ? "x" : " ")] \(item.title)"
+            }.joined(separator: "\n")
+            checklistBlock = "\n🧭 Camping Checklist\n\(rendered)\n"
+        }
         return """
         🚗 \(trip.name)
         
@@ -430,8 +494,9 @@ struct ShareTripView: View {
         📏 Distance: \(distance) miles
         🚙 Vehicle: \(trip.vehicle.displayName)
         💰 Total Cost: \(trip.currency.symbol)\(cost)
-        \(splitText)
+        \n\(splitText)
         \(trip.notes ?? "")
+        \(checklistBlock)
         """
     }
     
