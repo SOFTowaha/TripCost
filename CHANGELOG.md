@@ -5,6 +5,19 @@ All notable changes to TripCost will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-10-27
+
+### ✨ Enhanced
+- Glass design system applied across the app (cards, buttons, backgrounds) for a cohesive frosted look
+- Centered From/To fields on Trip page for better focus and usability
+- Compact, native toolbar controls with labels where appropriate
+
+### 🐛 Fixed
+- Reset button sizing and label visibility on Trip page
+- “Add Vehicle” toolbar icon hover outline and alignment; uses plain style with label and small control size
+- Stroke rendering compile error by constraining glass shape to `InsettableShape`
+- Saved page rows styled as glass cards; separators hidden and row backgrounds cleared
+
 ## [1.1.0] - 2025-10-21
 
 ### 🎉 Added
@@ -88,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.1.1]: https://github.com/SOFTowaha/TripCost/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/SOFTowaha/TripCost/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/SOFTowaha/TripCost/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/SOFTowaha/TripCost/compare/v1.0.2...v1.0.3
