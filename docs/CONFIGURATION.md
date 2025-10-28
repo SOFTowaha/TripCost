@@ -42,6 +42,15 @@ The app uses `ConfigurationManager` to load configuration in this order:
 3. **Info.plist** – build-time config (e.g., via xcconfig)
 4. **`.env` file (Debug-only)** – convenient for local development
 
+### Configure via Settings (Keychain)
+
+You can set keys directly in the app, stored securely in the macOS Keychain:
+
+- Weather: Settings → Weather API → OpenWeatherMap API Key
+- Vehicle: Settings → Vehicle API → API Ninjas API Key
+
+This is the recommended method for end users. Keys saved here take precedence.
+
 ### Security Best Practices
 
 ✅ **Do:**

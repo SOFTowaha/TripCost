@@ -22,6 +22,7 @@ struct SettingsView: View {
                         currencyCard
                         fuelPricingCard
                         weatherConfigCard
+                        vehicleConfigCard
                         aboutCard
                     }
                     .padding(24)
@@ -78,6 +79,20 @@ extension SettingsView {
             }
 
             WeatherAPIKeyEditor()
+        }
+        .padding(20)
+        .modifier(GlassCardModifier(config: .init(cornerRadius: 16)))
+    }
+    private var vehicleConfigCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "car.fill")
+                    .foregroundStyle(.teal)
+                Text("Vehicle API")
+                    .font(.headline)
+            }
+
+            VehicleAPIKeyEditor()
         }
         .padding(20)
         .modifier(GlassCardModifier(config: .init(cornerRadius: 16)))
@@ -317,6 +332,88 @@ private struct WeatherAPIKeyEditor: View {
         }
         .onAppear {
             if let existing = KeychainService.shared.get("OPENWEATHER_API_KEY") {
+                apiKey = existing
+            }
+        }
+    }
+}
+
+// MARK: - Vehicle API Key Editor
+private struct VehicleAPIKeyEditor: View {
+    @State private var apiKey: String = ""
+    @State private var isSaved: Bool = false
+    @State private var reveal: Bool = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("API Ninjas API Key")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 8) {
+                if reveal {
+                    TextField("Enter API key", text: $apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                } else {
+                    SecureField("Enter API key", text: $apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                }
+
+                Button {
+                    reveal.toggle()
+                } label: {
+                    Image(systemName: reveal ? "eye.slash.fill" : "eye.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(reveal ? "Hide" : "Show")
+            }
+
+            HStack(spacing: 10) {
+                Button {
+                    let ok = KeychainService.shared.set(apiKey, for: "API_NINJAS_API_KEY")
+                    withAnimation { isSaved = ok }
+                    if ok {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            withAnimation { isSaved = false }
+                        }
+                    }
+                } label: {
+                    Label("Save", systemImage: "checkmark.circle.fill")
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+
+                Button(role: .destructive) {
+                    _ = KeychainService.shared.remove("API_NINJAS_API_KEY")
+                    apiKey = ""
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+
+                if isSaved {
+                    Label("Saved", systemImage: "checkmark.seal.fill")
+                        .foregroundStyle(.green)
+                        .font(.footnote)
+                        .transition(.opacity)
+                }
+                Spacer()
+            }
+
+            Text("Tip: You can also set API_NINJAS_API_KEY in your Xcode Scheme (Run → Arguments → Environment Variables).")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .onAppear {
+            if let existing = KeychainService.shared.get("API_NINJAS_API_KEY") {
                 apiKey = existing
             }
         }
